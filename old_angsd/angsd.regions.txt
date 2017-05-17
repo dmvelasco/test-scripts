@@ -1,0 +1,8 @@
+scaffold_1:1-
+scaffold_2:1-
+scaffold_3:1-
+scaffold_4:1-
+scaffold_5:1-
+scaffold_6:1-
+scaffold_7:1-
+scaffold_8:1-

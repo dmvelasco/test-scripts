@@ -1,0 +1,11 @@
+R code used to extract CDS from main genes gff3 file
+
+library(data.table)
+library(magrittr)
+library(dplyr)
+library(stringr)
+setwd("~/Documents/Research/Prunus/Domestication/analysis/")
+
+temp<-fread("Prunus_persica_v1.0_genes.gff3",sep="\t",header=FALSE) %>% setnames(c("Chr","genome","type","begin","end","unk1","strand","unk2","ID")) %>% filter(type=="CDS") %>% mutate(cdsID=(str_split_fixed(ID,"\\;",2)[,1])) %>% mutate(cds=substr(cdsID,4,length(cdsID))) %>% select(Chr,begin,end,strand,cds)
+gff3<-temp[with(temp,order(Chr,begin)), ]
+write.table(file="Prunus_persica_v1.0_cds.gff3",gff3,quote=F,col.name=F,row.name=F)

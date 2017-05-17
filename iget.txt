@@ -1,0 +1,4 @@
+Command for retrieving contents of an entire cyverse/iplant directory
+[must initialize first (iinit) then move to immediate parent directory (icd)
+and be in the directory (local or cluster) where you want the files to be downloaded]
+iget -f -K -P -T -v -r phylogeny_add/

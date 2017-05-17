@@ -1,0 +1,13 @@
+/group/jrigrp3/Velasco/Prunus/BAM2/PP02.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP03.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP04.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP05.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP06.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP07.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP08.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP09.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP10.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP11.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP13.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP14.bam
+/group/jrigrp3/Velasco/Prunus/BAM2/PP15.bam

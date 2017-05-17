@@ -1,0 +1,14 @@
+PD01.bam
+PD02.bam
+PD03.bam
+PD04.bam
+PD05.bam
+PD06.bam
+PD07.bam
+PD08.bam
+PD09.bam
+PD10.bam
+PD11.bam
+PD12.bam
+PD13.bam
+PD14.bam
