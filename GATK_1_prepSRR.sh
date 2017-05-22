@@ -37,6 +37,6 @@ fq="/home/dmvelasc/Projects/Prunus/Data/fastq"
 ##################################################
 for j in {1..2}
 do
-	zcat "$acc"_"$j"_filt.fq.gz | awk '{ if ($1 ~ /^@/ || $1 ~ /^+/) {split($1,a,"."); $1=a[1]"."a[2]; print;} else print; }' - | gzip -c - > "$scratch"/"$acc"_"$j"_filt2.fq.gz
+	zcat "$acc"_"$j"_filt.fq.gz | awk '{ if ($1 ~ /^@SRR/ || $1 ~ /^+SRR/) {split($1,a,"."); $1=a[1]"."a[2]; print;} else print; }' - | gzip -c - > "$scratch"/"$acc"_"$j"_filt2.fq.gz
 	mv "$scratch"/"$acc"_"$j"_filt2.fq.gz "$fq"/
 done

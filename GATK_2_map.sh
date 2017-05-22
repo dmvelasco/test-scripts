@@ -24,7 +24,7 @@ i=$(( x-1 ))
 # Declare prefix array
 #declare -a abbr=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
 # Public sequences
-declare -a abbr=(PD11 PD12 PD13 PD14 PG01 PP01 PP02 PP03 PP04 PP05 PP06 PP07 PP08 PP09 PP10 PP11 PP12 PP13 PP14 PS01 PV01 PV03 PV04 PV05 PV06 PG02 PG04 PG05 PS04 PM01 PM02 PM03 PM04 PM05 PM06 PD11 PP37 PP39 PP40 PD16 PD17 PD18 PD21 PG03 PS03 PP38 PD20 PD19)
+declare -a abbr=(PD11 PD12 PD13 PD14 PG01 PP01 PP02 PP03 PP04 PP05 PP06 PP07 PP08 PP09 PP10 PP12 PP14 PS01 PV01 PV03 PV04 PV05 PV06 PG02 PG04 PG05 PS04 PM01 PM02 PM03 PM04 PM05 PM06 PP37 PP39 PP40 PD16 PD17 PD18 PD21 PG03 PS03 PP38 PD20 PD19 PP11 PP13)
 
 acc="${abbr["$i"]}"
 
@@ -42,7 +42,7 @@ echo "create temporary directory to process sample";
 date
 
 # Make directory to copy reference
-mkdir "$acc"_temp
+mkdir -p "$acc"_temp
 
 echo "copy reference files to temporary directory";
 date
@@ -52,7 +52,7 @@ cp "$dir2"/Prunus_persica_v1.0_scaffolds.fa.* "$acc"_temp/
 cp "$dir5"/Prunus_persica_v1.0_scaffolds.fa "$acc"_temp/
 
 
-echo "Map $acc to reference with BWA MEM";
+echo "Map ${acc} to reference with BWA MEM";
 date
 
 # Map sample to reference
@@ -66,7 +66,7 @@ srun "$dir1"/bwa mem -M -t 4 -k 10 "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa 
 # -k	Minimum seed length [default 19]
 # -r	Trigger re-seeding for a MEM longer than minSeedLen*FLOAT [1.5]; previously used 2.85 but may lead to lower accuracy
 
-echo "remove temp directory";
+echo "remove ${acc}_temp directory";
 date
 
 # remove temporary reference directory recursively

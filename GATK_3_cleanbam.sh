@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK3.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK3.txt
 #SBATCH -p bigmemm
-#SBATCH -a 1-20
+#SBATCH -a 1-10%2
 #SBATCH -J GATK
 #SBATCH -n 1
 #SBATCH -c 4
@@ -46,7 +46,8 @@ GATK="/home/dmvelasc/Software/GATK/GenomeAnalysisTK.jar"
 # Declare number variables
 x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
-declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
+#declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
+declare -a id=(PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10 PS02)
 sample="${id["$i"]}"
 
 # Public sequences for later

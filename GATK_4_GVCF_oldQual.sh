@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK-gVCF.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK-gVCF.txt
 #SBATCH -p bigmemm
-#SBATCH -a 1-20%4
+#SBATCH -a 1-12%2
 #SBATCH -J GATK
 #SBATCH -n 1
 #SBATCH -c 4
@@ -51,9 +51,9 @@ vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
 x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
 # full set of initial
-declare -a id=(PB01 PC01 PD01 PD02 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10 PF01 PK01 PP15 PR01 PS02 PT01 PU01 PV02)
+#declare -a id=(PB01 PC01 PD01 PD02 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10 PF01 PK01 PP15 PR01 PS02 PT01 PU01 PV02)
 # set that had different quality encoding
-#declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01)
+declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01)
 sample="${id["$i"]}"
 
 # Declare prefix array
@@ -97,6 +97,7 @@ mkdir -p /scratch/dmvelasc/gvcf
 # run for individual bams, combine in joint genotyping later
 java -Xmx20g -jar "$GATK" -T HaplotypeCaller \
     -R "$genome" \
+    -fixMisencodedQuals \
     -I final/"$sample"_sorted_markdup.bam \
     -o "$scratch"/"$sample".g.vcf \
     -bamout "$scratch"/"$sample"_HCrealign.bam \
