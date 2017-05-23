@@ -4,7 +4,7 @@
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-GATK2map-stderr.txt
 #SBATCH -J map
 #SBATCH -p bigmemm
-#SBATCH -a 1-45%5
+#SBATCH -a 1-2
 #SBATCH -t 16-00:00:00
 #SBATCH -n 1
 #SBATCH -c 4
@@ -24,8 +24,8 @@ i=$(( x-1 ))
 # Declare prefix array
 #declare -a abbr=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
 # Public sequences
-declare -a abbr=(PD11 PD12 PD13 PD14 PG01 PP01 PP02 PP03 PP04 PP05 PP06 PP07 PP08 PP09 PP10 PP12 PP14 PS01 PV01 PV03 PV04 PV05 PV06 PG02 PG04 PG05 PS04 PM01 PM02 PM03 PM04 PM05 PM06 PP37 PP39 PP40 PD16 PD17 PD18 PD21 PG03 PS03 PP38 PD20 PD19 PP11 PP13)
-
+#declare -a abbr=(PD11 PD12 PD13 PD14 PG01 PP01 PP02 PP03 PP04 PP05 PP06 PP07 PP08 PP09 PP10 PP12 PP14 PS01 PV01 PV03 PV04 PV05 PV06 PG02 PG04 PG05 PS04 PM01 PM02 PM03 PM04 PM05 PM06 PP37 PP39 PP40 PD16 PD17 PD18 PD21 PG03 PS03 PP38 PD20 PD19 PP11 PP13)
+declare -a abbr=(PP14_A PP14_B)
 acc="${abbr["$i"]}"
 
 # Declare directories
@@ -57,9 +57,9 @@ date
 
 # Map sample to reference
 # Use below with fastq that does not need the sequence ID trimmed, i.e. non-SRR samples
-#srun "$dir1"/bwa mem -M -t 4 -k 10 "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa "$dir3"/"$acc"_1_filt.fq.gz "$dir3"/"$acc"_2_filt.fq.gz | "$dir1"/samtools view -T "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa - -o "$dir4"/"$acc".bam
+srun "$dir1"/bwa mem -M -t 4 -k 10 "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa "$dir3"/"$acc"_1_filt.fq.gz "$dir3"/"$acc"_2_filt.fq.gz | "$dir1"/samtools view -T "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa - -o "$dir4"/"$acc".bam
 # Use below with fastq that DOES need the sequence ID trimmed, i.e. SRR samples
-srun "$dir1"/bwa mem -M -t 4 -k 10 "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa "$dir3"/"$acc"_1_filt2.fq.gz "$dir3"/"$acc"_2_filt2.fq.gz | "$dir1"/samtools view -T "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa - -o "$dir4"/"$acc".bam
+#srun "$dir1"/bwa mem -M -t 4 -k 10 "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa "$dir3"/"$acc"_1_filt2.fq.gz "$dir3"/"$acc"_2_filt2.fq.gz | "$dir1"/samtools view -T "$acc"_temp/Prunus_persica_v1.0_scaffolds.fa - -o "$dir4"/"$acc".bam
 
 # -t	threads
 # -M	Mark shorter split hits as secondary (for Picard compatibility)
