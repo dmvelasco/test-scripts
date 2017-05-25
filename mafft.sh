@@ -20,3 +20,16 @@ dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF"		# VCF directory
 dir3="/home/dmvelasc/Data/references/persica-SCF"		# FASTA reference directory
 dir4="/group/jrigrp3/Velasco/Prunus/BAM"
 
+# basic set up
+# input is multi-sequence fasta
+mafft --localpair --maxiterate 1000 input [> output]
+
+
+while read p; do
+        # create multi-sequence fasta for each gene
+        touch "$dir4"/"$p".fa
+        for i in "${id[@]}"
+        do
+           cat "$dir5"/"${id[$i]}"/"$p"_"${id[$i]}" >> "$dir4"/"$p".fa
+        done
+done < "$dir3"/Prunus_persica_v1.0_genes_list.gff3
