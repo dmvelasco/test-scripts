@@ -4,8 +4,8 @@
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-vcf2fa.txt
 #SBATCH -J vcf2fa
 #SBATCH -p bigmemm
-#SBATCH -a 2-3
-#SBATCH -t 5-00:00:00
+#SBATCH -a 1-10%4
+#SBATCH -t 1-00:00:00
 #SBATCH -n 1
 #SBATCH -c 1
 #SBATCH --mem=8G
@@ -15,6 +15,7 @@ set -u
 ########## WRITTEN BY D. VELASCO ###########
 
 ########################################################################################################
+### Create CDS FASTA sequences (with ambiguity codes) from individuals in a joint VCF for each gene  ###
 ### picard verion: 2.9                                                                               ###
 ### GATK version: 3.7                                                                                ###
 ########################################################################################################
@@ -38,7 +39,7 @@ module load maven/3.2.3
 x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
 # full set of initial
-declare -a id=(PS02 PD01 PP15)
+declare -a id=(PC01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PR01 PS02)
 sample="${id["$i"]}"
 
 # location for the picard.jar
@@ -48,7 +49,7 @@ GATK="/home/dmvelasc/Software/GATK/GenomeAnalysisTK.jar"
 # genome reference file location
 genome="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.fa"
 # file directory for $sample vcf to convert to fasta
-vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
+vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/test_jointcalls.vcf"
 # gene intervals
 intervals="/home/dmvelasc/Data/references/persica-SCF/cds_intervals"
 
@@ -71,16 +72,16 @@ mkdir -p /scratch/dmvelasc/"$sample"
 
 while read p; do
 	# GATK portion - create CDS FASTA
-	java -Xmx2g -jar "$GATK" \
+	java -Xmx6g -jar "$GATK" \
 	-R "$genome" \
 	-T FastaAlternateReferenceMaker \
 	-o "$dir4"/"$sample"/"$p"_"$sample"_cds.fa \
 	-IUPAC "$sample" \
 	-raw \
-	--variant "$vcf"/"$sample".g.vcf \
+	--variant "$vcf" \
 	-L "$intervals"/"$p".intervals
 	# basic manipulations to create final CDS FASTA
-	echo ">${p}_${sample}" > "$dir4"/"$sample"/"$p"_"$sample".fa
+	echo ">${sample}" > "$dir4"/"$sample"/"$p"_"$sample".fa
 	awk '{printf $0;}' "$dir4"/"$sample"/"$p"_"$sample"_cds.fa | fold -w 60 - >> "$dir4"/"$sample"/"$p"_"$sample".fa
 	rm "$dir4"/"$sample"/"$p"_"$sample"_cds.fa
 done < "$dir3"/Prunus_persica_v1.0_genes_list.gff3

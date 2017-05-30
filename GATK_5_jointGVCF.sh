@@ -1,9 +1,9 @@
 #!/bin/bash -l
-#SBATCH -D /home/dmvelasc/Projects/Prunus/Data/BAM/
+#SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-GATK_jointgvcf.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-GATK_jointgvcf.txt
-#SBATCH -p bigmemh
-#SBATCH -J GATK
+#SBATCH -p bigmemm
+#SBATCH -J GATK5
 #SBATCH -n 1
 #SBATCH -c 4
 #SBATCH -t 4-00:00
@@ -45,7 +45,7 @@ genome="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds
 
 # Declare sample ID numbers/prefix array
 #declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
-declare -a id=(PS02 PD01 PP15)
+declare -a id=(PC01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PR01 PS02)
 
 # Public sequences for later - REMEMBER SOME HAVE MULTIPLE SRA RUNS
 #declare -a sra=(SRR765861 SRR765850 SRR765838 SRR765679 SRR502998 SRR502999 SRR502985 SRR502994 SRR502992 SRR502993 SRR502990 SRR502991 SRR502987 SRR502989 SRR502986 SRR503000 SRR503001 SRR502983 SRR502997 SRR502995 SRR502996 SRR501836 SRR068361 SRR068359 SRR068360 SRR502984 SRR502982)
@@ -65,6 +65,13 @@ java -Xmx20g -jar "$GATK" -T GenotypeGVCFs \
     -V "${id[0]}".g.vcf \
     -V "${id[1]}".g.vcf \
     -V "${id[2]}".g.vcf \
+    -V "${id[3]}".g.vcf \
+    -V "${id[4]}".g.vcf \
+    -V "${id[5]}".g.vcf \
+    -V "${id[6]}".g.vcf \
+    -V "${id[7]}".g.vcf \
+    -V "${id[8]}".g.vcf \
+    -V "${id[9]}".g.vcf \
     -o test_jointcalls.vcf
 
 #java -Xmx20g -jar "$GATK" -T GenotypeGVCFs \

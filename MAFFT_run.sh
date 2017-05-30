@@ -3,11 +3,11 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-mafft_prep.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-mafft_prep.txt
 #SBATCH -J mafft
-#SBATCH -a 1-27585%10
-#SBATCH -p bigmemh
+#SBATCH -a 1-10%2
+#SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH -t 1:00:00
+#SBATCH -t 20:00:00
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 
@@ -23,13 +23,21 @@ module load mafft
 x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
 
-declare -a id=(PS02 PD01 PP15)
-#declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
-# need to modify so the array is pulled from a file with list of IDs
-# also make rest of this script into a bash script that is just called by this slurm script
+# Declare directories
+dir1="/home/dmvelasc/bin"                                       # software binary directory
+dir2="/home/dmvelasc/Projects/Prunus/Analysis/genetree"              # VCF directory
+dir3="/home/dmvelasc/Data/references/persica-SCF"               # FASTA reference directory
 
-# NEED array for the input
+# basic set up
+# input is multi-sequence fasta
 
-##### STEP 1 #####
-# align sequences
-linsi input > output
+##### STEP 1: CREATE ARRARY OF GENE IDs #####
+# creates array from gene ID file, each line (gene) a separate array item
+# can use to create array job
+# 27864 genes in gene ID list file
+
+mapfile -t gene < "$dir3"/Prunus_persica_v1.0_genes_list.gff3
+
+
+##### STEP 2: ALIGN MULTI FASTA SEQUENCE #####
+mafft --localpair --maxiterate 1000 --phylipout "$dir2"/"${gene["$i"]}".fa > "$dir2"/"${gene["$i"]}"_aln.fa
