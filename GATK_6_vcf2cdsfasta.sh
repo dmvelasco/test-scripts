@@ -5,7 +5,7 @@
 #SBATCH -J vcf2fa
 #SBATCH -p bigmemm
 #SBATCH -a 1-10%4
-#SBATCH -t 1-00:00:00
+#SBATCH -t 3-00:00:00
 #SBATCH -n 1
 #SBATCH -c 1
 #SBATCH --mem=8G
