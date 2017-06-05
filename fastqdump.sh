@@ -2,12 +2,11 @@
 #SBATCH -D /group/jrigrp3/Velasco/Prunus/fastq/
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-fastqdump.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-fastqdump.txt
-#SBATCH -a 1-2
 #SBATCH -J fastqd
 #SBATCH -p bigmemm
 #SBATCH -n 1
-#SBATCH -c 1
-#SBATCH -t 10:00:00
+#SBATCH -c 2
+#SBATCH -t 4-00:00:00
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 
@@ -15,21 +14,26 @@ set -e
 set -u
 
 # load modules
-module load sratoolkit/2.8.2
+module load sratoolkit
 
-# Declare number variables
-x=$SLURM_ARRAY_TASK_ID
-i=$(( x-1 ))
+# Create scratch directory for file download
+mkdir -p /scratch/dmvelasc/
 
 # Declare directories
-fastq="/group/jrigrp3/Velasco/Prunus/fastq"        # input/output directory
+fastq="/group/jrigrp3/Velasco/Prunus/fastq/"	# final directory
+scratch="/scratch/dmvelasc/"			# scratch directory
 
-# Declare prefix array
-#declare -a main=(SRR068360 SRR068361 SRR502982 SRR502983 SRR502984 SRR502985 SRR502986 SRR502987 SRR502990 SRR502992 SRR502994 SRR502995 SRR502997 SRR502998 SRR503000 SRR765679 SRR765838 SRR765850 SRR765861 SRR3237762 SRR3138171 SRR3141016 SRR3141018 SRR3138115 SRR3138121 SRR3138123 SRR3138169 SRR3237746 SRR3141019 SRR3136174 SRR3136179 SRR3136181 SRR3136183 SRR765861 SRR3138129 SRR3138145 SRR3138147 SRR3141049 SRR3141073 SRR3141113 SRR3141248 SRR3138117 SRR3138168 SRR3138132 SRR3141238 SRR3141181)
-#declare -a abbr=(PP14 PP12 PV01 PP08 PS01 PP01 PP06 PP05 PP04 PP03 PP02 PP10 PP09 PG01 PP07 PD14 PD13 PD12 PD11 PV03 PV04 PV05 PV06 PG02 PG04 PG05 PS04 PM01 PM02 PM03 PM04 PM05 PM06 PD11 PP37 PP39 PP40 PD16 PD17 PD18 PD21 PG03 PS03 PP38 PD20 PD19)
+# Declare prefix array, twenty total accession (these were the ones missed on iPlant)
 declare -a main=(SRR3237762 SRR3138117 SRR3138123 SRR502984 SRR3138168 SRR3138169 SRR3237746 SRR3136181 SRR501836 SRR068359 SRR3138129 SRR3138132 SRR3138145 SRR3138147 SRR3141049 SRR3141073 SRR3141113 SRR3141181 SRR3141238 SRR3141248)
-#twenty total
 
-reads="${main["$i"]}"
+# Download SRR repositories as fastq
+for x in {1..20}
+do
+   i=$(( x-1 ))
+   reads="${main["$i"]}"
+   fastq-dump -A "$reads" --split-files --defline-seq '@$sn $ri:N:0:0 length=$rl' --defline-qual '+$sn $ri:N:0:0 length=$rl' --gzip -O "$scratch"
 
-fastq-dump -A "$reads" --split-files --defline-seq '@$sn $ri:N:0:0 length=$rl' --defline-qual '+$sn $ri:N:0:0 length=$rl' --gzip
+   # Move fastq files to final directory
+   mv "$reads"_1.fastq.gz "$fastq"
+   mv "$reads"_2.fastq.gz "$fastq"
+done
