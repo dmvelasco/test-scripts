@@ -1,13 +1,13 @@
 #!/bin/bash -l
-#SBATCH -D /home/dmvelasc/Projects/Prunus/Data/BAM/
+#SBATCH -D /group/jrigrp3/Velasco/Prunus/BAM/
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK-gVCF.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK-gVCF.txt
 #SBATCH -p bigmemm
-#SBATCH -a 1-12%2
+#SBATCH -a 56-67%10
 #SBATCH -J GATK
 #SBATCH -n 1
 #SBATCH -c 4
-#SBATCH -t 10-00:00
+#SBATCH -t 10-00:00:00
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 #SBATCH --mem=24000
@@ -33,6 +33,9 @@ module load maven/3.2.3
 #############################
 ### Set up the parameters ###
 #############################
+# Declare number variables
+x=$SLURM_ARRAY_TASK_ID
+i=$(( x-1 ))
 
 # number of threads
 #threads=6
@@ -42,33 +45,45 @@ picard="/home/dmvelasc/Software/picard/picard.jar"
 GATK="/home/dmvelasc/Software/GATK/GenomeAnalysisTK.jar"
 # genome reference file location
 genome="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.fa"
-# scratch directory
-scratch="/scratch/dmvelasc/gvcf"
+# genome dictionary file location
+dictionary="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.dict"
 # VCF directory
 vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
+# BAM directory
+BAM="/group/jrigrp3/Velasco/Prunus/BAM"
+# scratch directory for temporary storage
+scratch="/scratch/dmvelasc"
 
-# Declare number variables
-x=$SLURM_ARRAY_TASK_ID
-i=$(( x-1 ))
-# full set of initial
-#declare -a id=(PB01 PC01 PD01 PD02 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10 PF01 PK01 PP15 PR01 PS02 PT01 PU01 PV02)
-# set that had different quality encoding
-declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01)
-sample="${id["$i"]}"
+##### CREATE SAMPLE PREFIX #####
+# path to sample list
+list="/home/dmvelasc/Projects/Prunus/Script/sample_vcf.txt"
 
-# Declare prefix array
-# Public sequences for later
-#declare -a id=(PD11 PD12 PD13 PD14 PG01 PP01 PP02 PP03 PP04 PP05 PP06 PP07 PP08 PP09 PP10 PP11 PP12 PP13 PP14 PS01 PV01)
-# ALSO ADD PUBLIC P. MIRA, NEW P. DAVIDIANA SEQUENCES
-#declare -a id=()
+# mapfile to extract sample ID and read name information, each line is array item
+mapfile -s "$i" -n 1 -t id < "${list}"
+# -s number of rows to skip
+# -n number of rows to read
+# -t (cannot remember, but does not correspond to last item; remove leading/trailing whitespace?)
+# id is the array name (anything in this position is the array name if nothing then called ?array)
+
+# create an array from each two column line
+arr=(`echo "${id[0]}"`)
+
+# declare variables, created from array
+sample="${arr[0]}"
+
+
+###########
+######### mk sample subdirectory and copy reference?
+mkdir -p "$scratch"/"$sample"
+cp "$genome" "$scratch"/"$sample"/
+cp "$dictionary" "$scratch"/"$sample"/
 
 # Step1: validate file
-
 echo "########## Index BAM File ##########";
 date
 
 # Check if BAM is indexed, if not then index and move to same location as BAM
-file="final/${sample}_sorted_markdup.bai"
+file="${sample}_sorted_markdup.bai"
 if [ -e "$file" ]
 then
 #    echo "$file found, skipping index build"
@@ -76,7 +91,7 @@ then
 else
 #    echo "$file not found, building index"
     java -jar "$picard" BuildBamIndex \
-        I=final/"$sample"_sorted_markdup.bam
+        I="$sample"_sorted_markdup.bam
 #    mv "$sample"_sorted_markdup.bam.bai final/ #apparently creates in same directory as BAM file
 fi
 
@@ -84,7 +99,7 @@ echo "########## Validate BAM File ##########";
 date
 
 java -Xmx20g -jar "$picard" ValidateSamFile \
-    I=final/"$sample"_sorted_markdup.bam \
+    I="$sample"_sorted_markdup.bam \
     MODE=SUMMARY
 
 # Call variants
@@ -92,13 +107,11 @@ java -Xmx20g -jar "$picard" ValidateSamFile \
 echo "########## call variants and output GVCF ##########";
 date
 
-mkdir -p /scratch/dmvelasc/gvcf
-
 # run for individual bams, combine in joint genotyping later
 java -Xmx20g -jar "$GATK" -T HaplotypeCaller \
-    -R "$genome" \
+    -R "$scratch"/"$sample"/Prunus_persica_v1.0_scaffolds.fa \
     -fixMisencodedQuals \
-    -I final/"$sample"_sorted_markdup.bam \
+    -I "$sample"_sorted_markdup.bam \
     -o "$scratch"/"$sample".g.vcf \
     -bamout "$scratch"/"$sample"_HCrealign.bam \
     -ERC GVCF
@@ -108,5 +121,9 @@ java -Xmx20g -jar "$GATK" -T HaplotypeCaller \
 # and resources for each additional sample added to the project.
     # -bamout option "allows you to ask for the realigned version of the bam"
 
-mv "$scratch"/"$sample".g.vcf "$vcf"/
-mv "$scratch"/"$sample"_HCrealign.bam /home/dmvelasc/Projects/Prunus/Data/BAM/
+##### Step 3: cleanup
+rm "$scratch"/"$sample"/Prunus_persica_v1.0_scaffolds.fa
+rm "$scratch"/"$sample"/Prunus_persica_v1.0_scaffolds.dict"
+mv "$scratch"/"$sample"_HCrealign.bam /group/jrigrp3/Velasco/Prunus/BAM/
+mv "$scratch"/"$sample".* "$vcf"/
+rmdir "$scratch"/"$sample"

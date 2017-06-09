@@ -1,13 +1,13 @@
 #!/bin/bash -l
-#SBATCH -D /home/dmvelasc/Projects/Prunus/Data/BAM/
+#SBATCH -D /group/jrigrp3/Velasco/Prunus/BAM/
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK3.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK3.txt
-#SBATCH -p bigmemm
-#SBATCH -a 1-10%2
+#SBATCH -p med
+#SBATCH -a 1-67%10
 #SBATCH -J GATK
 #SBATCH -n 1
-#SBATCH -c 4
-#SBATCH -t 4-00:00
+#SBATCH -c 10
+#SBATCH -t 7-00:00:00
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 #SBATCH --mem=24000
@@ -37,26 +37,40 @@ date
 #############################
 ### Set up the parameters ###
 #############################
+# Declare number variables
+x=$SLURM_ARRAY_TASK_ID
+i=$(( x-1 ))
 
 # location for the picard.jar
 picard="/home/dmvelasc/Software/picard/picard.jar"
 # location for the GenomeAnalysisTK.jar
 GATK="/home/dmvelasc/Software/GATK/GenomeAnalysisTK.jar"
-
-# Declare number variables
-x=$SLURM_ARRAY_TASK_ID
-i=$(( x-1 ))
-#declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
-declare -a id=(PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10 PS02)
-sample="${id["$i"]}"
-
-# Public sequences for later
-#declare -a sra=(SRR765861 SRR765850 SRR765838 SRR765679 SRR502998 SRR502985 SRR502994 SRR502992 SRR502990 SRR502987 SRR502986 SRR503000 SRR502983 SRR502997 SRR502983 SRR502997 SRR502995 SRR501836 SRR068361 SRR068359 SRR068360 SRR502984 SRR502982)
-#declare -a pub=(PD11 PD12 PD13 PD14 PG01 PP01 PP02 PP03 PP04 PP05 PP06 PP07 PP08 PP09 PP10 PP11 PP12 PP13 PP14 PS01 PV01)
-# ALSO ADD PUBLIC P. MIRA, NEW P. DAVIDIANA SEQUENCES
-
 # genome reference file location
 genome="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.fa"
+# BAM directory
+BAM="/group/jrigrp3/Velasco/Prunus/BAM"
+# scratch directory for temporary storage
+scratch="/scratch/dmvelasc"
+
+##### CREATE SAMPLE PREFIX #####
+# path to sample list
+list="/home/dmvelasc/Projects/Prunus/Script/sample.txt"
+
+# mapfile to extract sample ID and read name information, each line is array item
+mapfile -s "$i" -n 1 -t id < "${list}"
+# -s number of rows to skip
+# -n number of rows to read
+# -t (cannot remember, but does not correspond to last item; remove leading/trailing whitespace?)
+# id is the array name (anything in this position is the array name if nothing then called ?array)
+
+# create an array from each two column line
+arr=(`echo "${id[0]}"`)
+
+# declare variables, created from array
+sample="${arr[0]}"
+
+# make scratch directory for job
+mkdir -p /scratch/dmvelasc
 
 ####################################################################################################################################
 ### previous BWA-mem align(bwa mem -M) and get the bam file, and now we need to filter the bam file and get the clean alignment  ###
@@ -69,7 +83,7 @@ date
 
 java -Xmx20g -jar $picard AddOrReplaceReadGroups \
  I="$sample".bam \
- O="$sample"_with_RG.bam \
+ O="$scratch"/"$sample"_with_RG.bam \
  SORT_ORDER=coordinate \
  RGID=$sample \
  RGLB=$sample \
@@ -78,6 +92,8 @@ java -Xmx20g -jar $picard AddOrReplaceReadGroups \
  RGSM=$sample \
  CREATE_INDEX=true
 
+mv "$scratch"/"$sample"_with_RG.* "$BAM"/
+
 # Step2: remove duplicate reads
 echo "Step 2: remove duplicate reads";
 date
@@ -85,6 +101,14 @@ date
 java -Xmx20g -jar $picard MarkDuplicates \
  VALIDATION_STRINGENCY=LENIENT \
  I="$sample"_with_RG.bam \
- O="$sample"_sorted_markdup.bam \
+ O="$scratch"/"$sample"_sorted_markdup.bam \
  METRICS_FILE="$sample"_metrics.txt \
  CREATE_INDEX=true
+
+mv "$scratch"/"$sample"_sorted_markdup.* "$BAM"/
+rm "$sample"_with_RG.bam
+
+# Step3: Realignment Around Indels
+# indel realignment not required with GATK version 3.6 and later
+# HaplotypeCaller performs indel realignment, see https://software.broadinstitute.org/gatk/blog?id=7847
+

@@ -49,7 +49,7 @@ dir4="/group/jrigrp3/Velasco/Prunus/BAM"		# output directory
 dir5="/home/dmvelasc/Data/references/persica-SCF"	# FASTA reference directory
 scratch="/scratch/dmvelasc"				# scratch directory for temporary storage
 
-# Load zlib 1.2.8
+##### Load zlib 1.2.8
 module load zlib
 
 echo "create temporary directory to process sample";
