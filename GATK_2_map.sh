@@ -3,11 +3,11 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-GATK2map-stdout.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-GATK2map-stderr.txt
 #SBATCH -J map
-#SBATCH -p med
-#SBATCH -a 1-67%10
+#SBATCH -p bigmemm
+#SBATCH -a 38
 #SBATCH -t 20-00:00:00
 #SBATCH -n 1
-#SBATCH -c 10
+#SBATCH -c 4
 #SBATCH --mem=24000
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
