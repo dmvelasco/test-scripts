@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK-gVCF.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK-gVCF.txt
 #SBATCH -p bigmemm
-#SBATCH -a 1-55%10
+#SBATCH -a 1,13,55
 #SBATCH -J GATK
 #SBATCH -n 1
 #SBATCH -c 4
@@ -14,6 +14,8 @@
 
 set -e
 set -u
+
+#-a 1-5,7-28,30-55%10
 
 module load samtools/1.3.1
 module load bamtools

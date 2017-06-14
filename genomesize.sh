@@ -47,7 +47,7 @@ acc="${arr[0]}"
 # make scratch directory for job
 mkdir -p /scratch/dmvelasc
 
-kmer="25"
+kmer="31"
 
 ###### JELLYFISH COUNT AND HISTOGRAM OUTPUT
 # count k-mers (see jellyfish documentation for options)
