@@ -4,17 +4,20 @@
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-genomesize.txt
 #SBATCH -J jelly
 #SBATCH -p bigmemm
-#SBATCH -a 1-67%10
+#SBATCH -a 1-67%3
 #SBATCH -t 20-00:00:00
 #SBATCH -n 1
-#SBATCH -c 4
-#SBATCH --mem=24000
+#SBATCH -c 8
+#SBATCH --mem=60G
 set -e
 set -u
 
 # Declare number variables
 x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
+
+# number of threads
+threads="8"
 
 # Load modules
 module load zlib
@@ -54,12 +57,12 @@ kmer="25"
 
 
 # TWO PASS method (slower; not tested as of 2017-01-12)
-#gunzip -c "$dir3"/"$acc"_1.fq.gz "$dir3"/"$acc"_2.fq.gz | "$dir1"/jellyfish bc -m "$kmer" -s 100G -t 16 -o "$acc"_"$kmer".bc /dev/fd/0
-#gunzip -c "$dir3"/"$acc"_1.fq.gz "$dir3"/"$acc"_2.fq.gz | "$dir1"/jellyfish count -m "$kmer" -C -s 3G -t 16 --bc "$acc"_"$kmer".bc -o "$acc"_"$kmer".counts /dev/fd/0
+#gunzip -c "$dir3"/"$acc"_1.fq.gz "$dir3"/"$acc"_2.fq.gz | "$dir1"/jellyfish bc -m "$kmer" -s 100G -t "$threads" -o "$acc"_"$kmer".bc /dev/fd/0
+#gunzip -c "$dir3"/"$acc"_1.fq.gz "$dir3"/"$acc"_2.fq.gz | "$dir1"/jellyfish count -m "$kmer" -C -s 3G -t "$threads" --bc "$acc"_"$kmer".bc -o "$acc"_"$kmer".counts /dev/fd/0
 
 # ONE PASS method
-#srun gunzip -c "$dir3"/"$reads"_1.fq.gz "$dir3"/"$reads"_2.fq.gz | "$dir1"/jellyfish count -m "$kmer" -C -s 20G -t 4 -o "$acc"_"$kmer".counts /dev/fd/0
-srun gunzip -c "$dir3"/"$acc"_1_filt.fq.gz "$dir3"/"$acc"_2_filt.fq.gz | "$dir1"/jellyfish count -m "$kmer" -C -s 20G -t 4 -o "$acc"_"$kmer".counts /dev/fd/0
+#srun gunzip -c "$dir3"/"$reads"_1.fq.gz "$dir3"/"$reads"_2.fq.gz | "$dir1"/jellyfish count -m "$kmer" -C -s 10G -t "$threads" -o "$acc"_"$kmer".counts /dev/fd/0
+srun gunzip -c "$dir3"/"$acc"_1_filt.fq.gz "$dir3"/"$acc"_2_filt.fq.gz | "$dir1"/jellyfish count -m "$kmer" -C -s 6G -t "$threads" -o "$acc"_"$kmer".counts /dev/fd/0
 
 # use original reads; perl scripts later check to see that the read lengths are the same
 
@@ -77,7 +80,7 @@ srun gunzip -c "$dir3"/"$acc"_1_filt.fq.gz "$dir3"/"$acc"_2_filt.fq.gz | "$dir1"
 # -s - hash size (number of elements, can use letters such as M for mega- and G for giga- k-mers, i.e. 100M = 100 million elements)
 # -U - skips high frequency k-mers (what is number that follows?)
 # -t - number of threads to use
-# /dev/fd/0 ->  indicates the stdin for piping, example zcat file.fastq.gz | jellyfish count [OPTIONS] jellyfish documentation
+# /dev/fd/0 -> indicates the stdin for piping, example zcat file.fastq.gz | jellyfish count [OPTIONS] jellyfish documentation
 
 # generate a histogram file
 "$dir1"/jellyfish histo "$acc"_"$kmer".counts > "$acc"_"$kmer".counts.histo

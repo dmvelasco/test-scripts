@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK3.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK3.txt
 #SBATCH -p med
-#SBATCH -a 1-67%10
+#SBATCH -a 12
 #SBATCH -J GATK
 #SBATCH -n 1
 #SBATCH -c 10

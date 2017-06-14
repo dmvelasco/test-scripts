@@ -3,11 +3,11 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-GATK2map-stdout.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-GATK2map-stderr.txt
 #SBATCH -J map
-#SBATCH -p bigmemm
-#SBATCH -a 38
+#SBATCH -p med
+#SBATCH -a 1-67%10
 #SBATCH -t 20-00:00:00
 #SBATCH -n 1
-#SBATCH -c 4
+#SBATCH -c 10
 #SBATCH --mem=24000
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
@@ -23,6 +23,9 @@ set -u
 # Declare number variables
 x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
+
+# number of threads, be sure to match number of cores (-c) in header
+threads="10"
 
 ##### CREATE SAMPLE PREFIX #####
 # path to sample list
@@ -70,7 +73,7 @@ date
 
 # Map sample to reference
 # Use below with fastq that does not need the sequence ID trimmed, i.e. non-SRR samples
-srun "$dir1"/bwa mem -M -t 10 -k 10 "$scratch"/"$acc"_temp/Prunus_persica_v1.0_scaffolds.fa "$dir3"/"$acc"_1_filt.fq.gz "$dir3"/"$acc"_2_filt.fq.gz | "$dir1"/samtools view -T "$scratch"/"$acc"_temp/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc".bam
+srun "$dir1"/bwa mem -M -t "$threads" -k 10 "$scratch"/"$acc"_temp/Prunus_persica_v1.0_scaffolds.fa "$dir3"/"$acc"_1_filt.fq.gz "$dir3"/"$acc"_2_filt.fq.gz | "$dir1"/samtools view -T "$scratch"/"$acc"_temp/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc".bam
 mv "$scratch"/"$acc".bam "$dir4"/
 # -t	threads
 # -M	Mark shorter split hits as secondary (for Picard compatibility)
