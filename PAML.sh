@@ -12,17 +12,13 @@ set -u
 
 # Load zlib 1.2.8
 module load zlib
-module load mafft
+#PAML is not a module on farm
 
 # Declare directories
 dir1="/home/dmvelasc/bin"					# software binary directory
 dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF"		# VCF directory
 dir3="/home/dmvelasc/Data/references/persica-SCF"		# FASTA reference directory
 dir4="/group/jrigrp3/Velasco/Prunus/BAM"
-
-# basic set up
-# input is multi-sequence fasta
-mafft --localpair --maxiterate 1000 input [> output]
 
 
 while read p; do

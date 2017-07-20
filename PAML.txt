@@ -1,0 +1,40 @@
+Notes regarding PAML scripts and data from Emily
+   locally at Documents/Research/Prunus/Phylogeny/paml_scripts/
+
+codeml.ctl
+contains information for PAML on what to do, control file
+
+At_Cr_Np.dnd
+contains a Newick-like tree, in case I find it referenced in the scripts or ctl file
+
+____________________
+PERL scripts
+____________________
+make_multi_fasta.pl
+probably do not need this since already have MAFFT_prep.sh script that creates multifasta
+
+translate_fasta.pl
+not sure if translation required for our purposes, requires "cds fasta file" (single or multi?)
+in pronucalignment.pl some comparison between [fasta protein alignment] and [fasta cDNA sequences (unaligned)]
+
+run_mafft.pl
+runs MAFFT on multi fasta, already have script for running mafft, MAFFT_run.sh
+
+pronucalignment.pl
+comparison between [fasta protein alignment] and [fasta cDNA sequences (unaligned)]
+is this for each sample individually or protein alignment and multifasta of cDNA?
+
+write_dnd_file.pl
+creates the dnd file with Newick-like tree, not quite sure the input required
+(format of the input tree?)
+
+multipronucalignment.pl
+input "[aln list] [cdna list]"
+references pronucalignment.pl
+looks like it just runs all cdna through the pronucalignment.pl script
+
+run_codeml.pl
+input [directory] (treefile)
+tree file appears optional and is "none" unless provided on command line
+does ls of rundirectory
+seems to just go through directory and run each file?

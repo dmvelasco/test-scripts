@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK-gVCF.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK-gVCF.txt
 #SBATCH -p bigmemm
-#SBATCH -a 56-67%10
+#SBATCH -a 56-67%2
 #SBATCH -J GATK
 #SBATCH -n 1
 #SBATCH -c 4
@@ -45,6 +45,8 @@ picard="/home/dmvelasc/Software/picard/picard.jar"
 GATK="/home/dmvelasc/Software/GATK/GenomeAnalysisTK.jar"
 # genome reference file location
 genome="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.fa"
+# genome reference index file location
+gindex="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.fa.fai"
 # genome dictionary file location
 dictionary="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.dict"
 # VCF directory
@@ -76,6 +78,7 @@ sample="${arr[0]}"
 ######### mk sample subdirectory and copy reference?
 mkdir -p "$scratch"/"$sample"
 cp "$genome" "$scratch"/"$sample"/
+cp "$gindex" "$scratch"/"$sample"/
 cp "$dictionary" "$scratch"/"$sample"/
 
 # Step1: validate file
@@ -122,8 +125,6 @@ java -Xmx20g -jar "$GATK" -T HaplotypeCaller \
     # -bamout option "allows you to ask for the realigned version of the bam"
 
 ##### Step 3: cleanup
-rm "$scratch"/"$sample"/Prunus_persica_v1.0_scaffolds.fa
-rm "$scratch"/"$sample"/Prunus_persica_v1.0_scaffolds.dict"
 mv "$scratch"/"$sample"_HCrealign.bam /group/jrigrp3/Velasco/Prunus/BAM/
 mv "$scratch"/"$sample".* "$vcf"/
-rmdir "$scratch"/"$sample"
+rm -rf "$scratch"/"$sample"/

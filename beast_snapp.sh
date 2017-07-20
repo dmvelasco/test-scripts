@@ -7,7 +7,7 @@
 #SBATCH -n 1
 #SBATCH -c 6
 #SBATCH --mem=9000M
-#SBATCH -t 10-00:00:00
+#SBATCH -t 40-00:00:00
 set -e
 set -u
 
