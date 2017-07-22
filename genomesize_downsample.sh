@@ -5,7 +5,7 @@
 #SBATCH -J jelly
 #SBATCH -p bigmemm
 #SBATCH -a 10,20,30,40,50,60,70%2
-#SBATCH -t 20-00:00:00
+#SBATCH -t 10:00:00
 #SBATCH -n 1
 #SBATCH -c 8
 #SBATCH --mem=60G
@@ -36,7 +36,7 @@ acc="PP01"
 # make scratch directory for job
 mkdir -p /scratch/dmvelasc
 
-kmer="22"
+kmer="25"
 
 ###### JELLYFISH COUNT AND HISTOGRAM OUTPUT
 # count k-mers (see jellyfish documentation for options)
@@ -72,14 +72,14 @@ srun gunzip -c "$dir3"/"$acc"_1_filt_sub"$x".fq.gz "$dir3"/"$acc"_2_filt_sub"$x"
 # /dev/fd/0 -> indicates the stdin for piping, example zcat file.fastq.gz | jellyfish count [OPTIONS] jellyfish documentation
 
 # generate a histogram file
-"$dir1"/jellyfish histo "$acc"_"$kmer".counts > "$acc"_"$kmer".counts.histo
+"$dir1"/jellyfish histo "$acc"_"$kmer"_sub"$x".counts > "$acc"_"$kmer"_sub"$x".counts.histo
 
 # jellyfish command histo
 # Usage: jellyfish histo file
 # -h high setting, default 10000
 # -f count all bins, including those with zero mer counts
 
-rm "$acc"_"$kmer".counts
+rm "$acc"_"$kmer"_sub"$x".counts
 
 ###### ESTIMATE GENOME SIZE SCRIPTS
 
