@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-GATK-gVCF.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-GATK-gVCF.txt
 #SBATCH -p bigmemm
-#SBATCH -a 30-54%5
+#SBATCH -a 2-4,14,18,21,26,28,34,35,40-54%5
 #SBATCH -J GATK
 #SBATCH -n 1
 #SBATCH -c 4
