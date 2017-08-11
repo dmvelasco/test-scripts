@@ -9,7 +9,7 @@
 #SBATCH -c 8
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
-#SBATCH --mem=32G
+#SBATCH --mem=56G
 set -e
 set -u
 
