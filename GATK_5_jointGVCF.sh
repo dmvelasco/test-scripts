@@ -44,14 +44,11 @@ genome="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds
 
 
 # Declare sample ID numbers/prefix array
-#declare -a id=(PR01 PC01 PS02 PK01 PU01 PT01 PV02 PD01 PP15 PF01 PD02 PB01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10)
-declare -a id=(PC01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PR01 PS02)
+declare -a id=(PB01 PR01 PU01 PC01 PV01 PV02 PV03 PV04 PV05 PV06 PF01 PG02 PG03 PG04 PG05 PS01 PS02 PS03 PS04 PK01 PM01 PM02 PM03 PM04 PM05 PM06 PT01 PP01 PP02 PP03 PP04 PP05 PP06 PP08 PP09 PP11 PP12 PP13 PP14 PP15 PP37 PP38 PP39 PP40 PD01 PD02 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PD10 PD11 PD12 PD13 PD14 PD16 PD17 PD18 PD19 PD20 PD21)
+# missing PG01, PP07, PP10
+# PD10 not indexed
 
-# Public sequences for later - REMEMBER SOME HAVE MULTIPLE SRA RUNS
-#declare -a sra=(SRR765861 SRR765850 SRR765838 SRR765679 SRR502998 SRR502999 SRR502985 SRR502994 SRR502992 SRR502993 SRR502990 SRR502991 SRR502987 SRR502989 SRR502986 SRR503000 SRR503001 SRR502983 SRR502997 SRR502995 SRR502996 SRR501836 SRR068361 SRR068359 SRR068360 SRR502984 SRR502982)
-#declare -a pub=(PD11 PD12 PD13 PD14 PG01.1 PG01.2 PP01 PP02 PP03.1 PP03.2 PP04.1 PP04.2 PP05.1 PP05.2 PP06 PP07.1 PP07.2 PP08 PP09 PP10.1 PP10.2 PP11 PP12 PP13 PP14 PS01 PV01)
-#declare -a id=(PD11 PD12 PD13 PD14 PG01 PP01 PP02 PP03 PP04 PP05 PP06 PP07 PP08 PP09 PP10 PP11 PP12 PP13 PP14 PS01 PV01)
-# ALSO ADD PUBLIC P. MIRA, NEW P. DAVIDIANA SEQUENCES
+#declare -a id=(PC01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PR01 PS02) # test set
 
 ####################################################################################################################################
 
@@ -59,6 +56,21 @@ declare -a id=(PC01 PD03 PD04 PD05 PD06 PD07 PD08 PD09 PR01 PS02)
 
 echo "########## Joint Genotyping with GVCFs ##########";
 date
+
+# test run
+#java -Xmx20g -jar "$GATK" -T GenotypeGVCFs \
+#    -R "$genome" \
+#    -V "${id[0]}".g.vcf \
+#    -V "${id[1]}".g.vcf \
+#    -V "${id[2]}".g.vcf \
+#    -V "${id[3]}".g.vcf \
+#    -V "${id[4]}".g.vcf \
+#    -V "${id[5]}".g.vcf \
+#    -V "${id[6]}".g.vcf \
+#    -V "${id[7]}".g.vcf \
+#    -V "${id[8]}".g.vcf \
+#    -V "${id[9]}".g.vcf \
+#    -o test_jointcalls.vcf
 
 java -Xmx20g -jar "$GATK" -T GenotypeGVCFs \
     -R "$genome" \
@@ -72,31 +84,60 @@ java -Xmx20g -jar "$GATK" -T GenotypeGVCFs \
     -V "${id[7]}".g.vcf \
     -V "${id[8]}".g.vcf \
     -V "${id[9]}".g.vcf \
-    -o test_jointcalls.vcf
-
-#java -Xmx20g -jar "$GATK" -T GenotypeGVCFs \
-#    -R "$genome" \
-#    -V "${id[0]}".g.vcf \
-#    -V "${id[1]}".g.vcf \
-#    -V "${id[2]}".g.vcf \
-#    -V "${id[3]}".g.vcf \
-#    -V "${id[4]}".g.vcf \
-#    -V "${id[5]}".g.vcf \
-#    -V "${id[6]}".g.vcf \
-#    -V "${id[7]}".g.vcf \
-#    -V "${id[8]}".g.vcf \
-#    -V "${id[9]}".g.vcf \
-#    -V "${id[10]}".g.vcf \
-#    -V "${id[11]}".g.vcf \
-#    -V "${id[12]}".g.vcf \
-#    -V "${id[13]}".g.vcf \
-#    -V "${id[14]}".g.vcf \
-#    -V "${id[15]}".g.vcf \
-#    -V "${id[16]}".g.vcf \
-#    -V "${id[17]}".g.vcf \
-#    -V "${id[18]}".g.vcf \
-#    -V "${id[19]}".g.vcf \
-#    -o all_jointcalls.vcf
+    -V "${id[10]}".g.vcf \
+    -V "${id[11]}".g.vcf \
+    -V "${id[12]}".g.vcf \
+    -V "${id[13]}".g.vcf \
+    -V "${id[14]}".g.vcf \
+    -V "${id[15]}".g.vcf \
+    -V "${id[16]}".g.vcf \
+    -V "${id[17]}".g.vcf \
+    -V "${id[18]}".g.vcf \
+    -V "${id[19]}".g.vcf \
+    -V "${id[20]}".g.vcf \
+    -V "${id[21]}".g.vcf \
+    -V "${id[22]}".g.vcf \
+    -V "${id[23]}".g.vcf \
+    -V "${id[24]}".g.vcf \
+    -V "${id[25]}".g.vcf \
+    -V "${id[26]}".g.vcf \
+    -V "${id[27]}".g.vcf \
+    -V "${id[28]}".g.vcf \
+    -V "${id[29]}".g.vcf \
+    -V "${id[30]}".g.vcf \
+    -V "${id[31]}".g.vcf \
+    -V "${id[32]}".g.vcf \
+    -V "${id[33]}".g.vcf \
+    -V "${id[34]}".g.vcf \
+    -V "${id[35]}".g.vcf \
+    -V "${id[36]}".g.vcf \
+    -V "${id[37]}".g.vcf \
+    -V "${id[38]}".g.vcf \
+    -V "${id[39]}".g.vcf \
+    -V "${id[40]}".g.vcf \
+    -V "${id[41]}".g.vcf \
+    -V "${id[42]}".g.vcf \
+    -V "${id[43]}".g.vcf \
+    -V "${id[44]}".g.vcf \
+    -V "${id[45]}".g.vcf \
+    -V "${id[46]}".g.vcf \
+    -V "${id[47]}".g.vcf \
+    -V "${id[48]}".g.vcf \
+    -V "${id[49]}".g.vcf \
+    -V "${id[50]}".g.vcf \
+    -V "${id[51]}".g.vcf \
+    -V "${id[52]}".g.vcf \
+    -V "${id[53]}".g.vcf \
+    -V "${id[54]}".g.vcf \
+    -V "${id[55]}".g.vcf \
+    -V "${id[56]}".g.vcf \
+    -V "${id[57]}".g.vcf \
+    -V "${id[58]}".g.vcf \
+    -V "${id[59]}".g.vcf \
+    -V "${id[60]}".g.vcf \
+    -V "${id[62]}".g.vcf \
+    -V "${id[63]}".g.vcf \
+   -o all_jointcalls.vcf
 
 # Every time there is an update on the project simply re-run the quick GenotypeGVCFs step
 # on all the samples available. The expensive and time-consuming part of calculating

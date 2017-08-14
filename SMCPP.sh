@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-smcpp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-smcpp.txt
 #SBATCH -J smcpp
-#SBATCH -p bigmemm
+#SBATCH -p bigmemh
 #SBATCH -t 4:00:00
 #SBATCH -n 1
 #SBATCH -c 8
@@ -37,10 +37,10 @@ vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/test_jointcalls.vcf"
 vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/test_dulcis.recode.vcf"
 # SMC++ prepped file
 smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
-final="mu9_48x-9"
+final="mu1_38x-8"
 
 ####### PARAMETERS #######
-mu="9.48e-9"	# population mutation rate
+mu="1.38e-8"	# population mutation rate
 cut="5000"	# cutoff length for homozygosity
 pop="dulcis"	# population
 
