@@ -1,12 +1,12 @@
 #!/bin/bash -l
 #SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/
-#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-GATK_jointgvcf.txt
-#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-GATK_jointgvcf.txt
-#SBATCH -p bigmemm
-#SBATCH -J GATK5
+#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-GATK_jgvcf.txt
+#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-GATK_jgvcf.txt
+#SBATCH -p bigmemh
+#SBATCH -J jgvcf
 #SBATCH -n 1
 #SBATCH -c 4
-#SBATCH -t 4-00:00
+#SBATCH -t 10-00:00
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 #SBATCH --mem=32G
