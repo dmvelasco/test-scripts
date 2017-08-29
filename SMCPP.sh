@@ -39,7 +39,7 @@ vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
 smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
 
 ####### PARAMETERS #######
-mu="7.77e-9"	# population mutation rate
+mu="9.48e-9"	# population mutation rate
 cut="5000"	# cutoff length for homozygosity
 pop="PD"	# population
 
@@ -71,7 +71,7 @@ vcftools --vcf "$vcf" --indv PD02 --indv PD03 --indv PD04 --indv PD05 --indv PD0
 #vcftools --vcf "$vcf" --indv PG02 --indv PG03 --indv PG04 --indv PG05 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
 ##### NEEDED FOR INITIAL PREP #####
-mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/all_"$pop".recode.vcf "$vcf_filt"/
+mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/"$sub"_"$pop".recode.vcf "$vcf_filt"/
 
 echo -e "convert vcf file to SMC++ format file"
 date

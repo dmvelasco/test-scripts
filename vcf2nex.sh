@@ -2,11 +2,11 @@
 #SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-snapp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-snapp.txt
-#SBATCH -J snapp
+#SBATCH -J vcf2nex
 #SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH -t 0:30:00
+#SBATCH -t 2:00:00
 set -e
 set -u
 
@@ -21,8 +21,8 @@ dir3="/home/dmvelasc/Data/references/persica-SCF"		# FASTA reference directory
 dir4="/group/jrigrp3/Velasco/Prunus/BAM"
 
 # Declare other variables
-infile="prunus-A.flt.vcf.bzip"		# starting vcf
-vcf="all_jointcalls.vcf"
+#infile="prunus-A.flt.vcf.bzip"		# starting vcf
+infile="all_jointcalls.vcf"
 out1="amyg_split"			# filter on quality, depth, genotype quality
 out2="amyg_split_noscaf"		# query for genotype and genotype quality
 thin="5000"				# spacing between each SNP
@@ -45,7 +45,7 @@ missing="?"
 #"$dir1"/bcftools view -r scaffold_1,scaffold_2,scaffold_3,scaffold_4,scaffold_5,scaffold_6,scaffold_7,scaffold_8 -s PD03.bam,PP04.bam,PR01.bam,PU01.bam,PV02.bam,PT01.bam -i "AC>0 && %QUAL>=250 && %AVG(DP)>5 && %MIN(GQ)>=30" -O v -o "$out1".vcf -v snps "$dir2"/"$infile"
 #"$dir1"/bcftools view -r scaffold_1,scaffold_2,scaffold_3,scaffold_4,scaffold_5,scaffold_6,scaffold_7,scaffold_8 -s PD03.bam,PP04.bam,PU01.bam,PV02.bam,PT01.bam -i "AC>0 && %QUAL>=250 && %AVG(DP)>5 && %MIN(GQ)>=30" -O v -o "$out1".vcf -v snps "$dir2"/"$infile"
 
-"$dir1"/bcftools index -f "$infile"
+"$dir1"/bcftools index -f "$infile" # does not work for GATK vcf file
 
 #"$dir1"/bcftools view -r scaffold_1,scaffold_2,scaffold_3,scaffold_4,scaffold_5,scaffold_6,scaffold_7,scaffold_8 -s PD03.bam,PD04.bam,PD05.bam,PD09.bam,PD10.bam,PD06.bam,PP02.bam,PP04.bam,PP03.bam,PP05.bam,PP11.bam,PP13.bam,PU01.bam,PV01.bam,PV02.bam,PS01.bam,PS02.bam,PB01.bam,PG01.bam,PT01.bam -i "AC>0 && %QUAL>=250 && %AVG(DP)>5 && %MIN(GQ)>=30" -O v -o "$out1".vcf -v snps "$dir2"/"$infile"
 
@@ -70,7 +70,8 @@ perl -plne 's/scaffold_(\w+)/$1/' "$out1.vcf" > "$out2".vcf
 # add header line of...
 #echo -e \t "CHROM\tPOS\tTYPE\tREF\tALT\tPD_03 \tGQ\tPP_04 \tGQ\tPR_01 \tGQ\tPU_01 \tGQ\tPV_02 \tGQ\tPT_01 \tGQ" > "$dir2"/temp.txt
 #echo -e \t "CHROM\tPOS\tTYPE\tREF\tALT\tPD_03 \tGQ\tPP_04 \tGQ\tPU_01 \tGQ\tPV_02 \tGQ\tPT_01 \tGQ" > "$dir2"/temp.txt
-echo -e \t "CHROM\tPOS\tTYPE\tREF\tALT\tPD_03 \tGQ\tPD_04 \tGQ\tPD_05 \tGQ\tPD_09 \tGQ\tPD_10 \tGQ\tPD_06 \tGQ\tPP_02 \tGQ\tPP_04 \tGQ\tPP_03 \tGQ\tPP_05 \tGQ\tPP_11 \tGQ\tPP_13 \tGQ\tPU_01 \tGQ\tPV_01 \tGQ\tPV_02 \tGQ\tPS_01 \tGQ\tPS_02 \tGQ\tPB_01 \tGQ\tPG_01 \tGQ\tPT_01 \tGQ" > "$dir2"/temp.txt
+#echo -e \t "CHROM\tPOS\tTYPE\tREF\tALT\tPD_03 \tGQ\tPD_04 \tGQ\tPD_05 \tGQ\tPD_09 \tGQ\tPD_10 \tGQ\tPD_06 \tGQ\tPP_02 \tGQ\tPP_04 \tGQ\tPP_03 \tGQ\tPP_05 \tGQ\tPP_11 \tGQ\tPP_13 \tGQ\tPU_01 \tGQ\tPV_01 \tGQ\tPV_02 \tGQ\tPS_01 \tGQ\tPS_02 \tGQ\tPB_01 \tGQ\tPG_01 \tGQ\tPT_01 \tGQ" > "$dir2"/temp.txt
+echo -e \t "CHROM\tPOS\tTYPE\tREF\tALT\tPB_01 \tGQ\tPC_01 \tGQ\tPD_01 \tGQ\tPD_02 \tGQ\tPD_03 \tGQ\tPD_04 \tGQ\tPD_05 \tGQ\tPD_06 \tGQ\tPD_07 \tGQ\tPD_08 \tGQ\tPD_09 \tGQ\tPD_10 \tGQ\tPD_11 \tGQ\tPD_12 \tGQ\tPD_13 \tGQ\tPD_14 \tGQ\tPD_16 \tGQ\tPD_17 \tGQ\tPD_18 \tGQ\tPD_20 \tGQ\tPD_21 \tGQ\tPF_01 \tGQ\tPG_02 \tGQ\tPG_03 \tGQ\tPG_04 \tGQ\tPG_05 \tGQ\tPK_01 \tGQ\tPM_01 \tGQ\tPM_02 \tGQ\tPM_03 \tGQ\tPM_04 \tGQ\tPM_05 \tGQ\tPM_06 \tGQ\tPP_01 \tGQ\tPP_02 \tGQ\tPP_03 \tGQ\tPP_04 \tGQ\tPP_05 \tGQ\tPP_06 \tGQ\tPP_08 \tGQ\tPP_09 \tGQ\tPP_11 \tGQ\tPP_12 \tGQ\tPP_13 \tGQ\tPP_14 \tGQ\tPP_15 \tGQ\tPP_37 \tGQ\tPP_38 \tGQ\tPP_39 \tGQ\tPP_40 \tGQ\tPR_01 \tGQ\tPS_01 \tGQ\tPS_02 \tGQ\tPS_03 \tGQ\tPS_04 \tGQ\tPT_01 \tGQ\tPU_01 \tGQ\tPV_01 \tGQ\tPV_02 \tGQ\tPV_03 \tGQ\tPV_04 \tGQ\tPV_05 \tGQ\tPV_06 \tGQ" > "$dir2"/temp.txt
 #PD03,PD04,PD05,PD09,PD10,PD06,PP02,PP04,PP03,PP05,PP11,PP13,PU01,PV01,PV02,PS01,PS02,PB01,PG01,PT01
 
 # select bialellic SNPs only by selecting lines that DO NOT include a comma
@@ -80,7 +81,7 @@ grep -v , "$out4".vcf >> "$dir2"/temp.txt
 #awk -F"\t" '{OFS="\t";} {print $6,$8,$10,$12,$14,$16,$18;}' "$dir2"/temp.txt > "$dir2"/"$bcfquery"
 #awk -F"\t" '{OFS="\t";} {print $6,$8,$10,$12,$14,$16;}' "$dir2"/temp.txt > "$dir2"/"$bcfquery"
 #awk -F"\t" '{OFS="\t";} {print $6,$8,$10,$12,$14;}' "$dir2"/temp.txt > "$dir2"/"$bcfquery"
-awk -F"\t" '{OFS="\t";} {print $6,$8,$10,$12,$14,$16,$18,$20,$22,$24,$26,$28,$30,$32,$34,$36,$38,$40,$42,$44;}' "$dir2"/temp.txt > "$dir2"/"$bcfquery"
+awk -F"\t" '{OFS="\t";} {print $6,$8,$10,$12,$14,$16,$18,$20,$22,$24,$26,$28,$30,$32,$34,$36,$38,$40,$42,$44,$46,$48,$50,$52,$54,$56,$58,$60,$62,$64,$66,$68,$70,$72,$74,$76,$78,$80,$82,$84,$86,$88,$90,$92,$94,$96,$98,$100,$102,$104,$106,$108,$110,$112,$114,$116,$118,$120,$122,$124,$126,$128,$130;}' "$dir2"/temp.txt > "$dir2"/"$bcfquery"
 
 # convert genotypes to 0,1,2 format with 0 homozygous reference (0/0), 1 heterozygous (0/1), 2 as homozygous alternate (1/1)
 # substitute 0 for 0/0, 1 for 0/1, 2 for 1/1, and . for ./. (these are missing data, no missing data present)
