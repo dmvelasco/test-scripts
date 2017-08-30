@@ -24,11 +24,11 @@ dir3="/home/dmvelasc/Data/references/persica-SCF"		# FASTA reference directory
 dir4="/group/jrigrp3/Velasco/Prunus/BAM"
 
 # Declare other variables
-infile="all_jointcalls.vcf"
-prefix="test"
-thin="5000"				# spacing between each SNP
-matrix="split_alltest_final.txt"	# transposed file
-outfile="split_alltest_final.nex"	# final file name
+infile="all_jointcalls.vcf"	# input vcf
+prefix="alltest2"		# prefix for intermediate and other files
+thin="5000"			# spacing between each SNP
+matrix="final.txt"		# transposed file; used in "$prefix"_"$matrix"
+outfile="final.nex"		# final file name; uses in "$prefix"_"$outfile"
 
 # NEXUS variables
 #DIMENSIONS (see below)
@@ -56,6 +56,7 @@ vcftools --vcf "$infile" --out "$prefix" \
 --min-meanDP 5 \
 --minQ 250 \
 --minGQ 30 \
+--max-missing 0.9 \
 --012
 
 #This option (--012) outputs the genotypes as a large matrix.
@@ -75,19 +76,19 @@ perl -plne 's/\-1/?/g' "$prefix".012 | cut -f 2- - | perl -plne 's/\t//g' - > "$
 ########## SPLIT NAMES IN ".012.indv" FILE AND ADD UNDERSCORE" ##############
 ########## CONCATENATE FILES BY LINE: paste file1.txt file2.txt
 
-awk '{a=substr($1, 1, 2); b=substr($1, 3, 2); print a"_"b;}' "$prefix".012.indv | paste - "$prefix"_mod.012 > "$matrix"
+awk '{a=substr($1, 1, 2); b=substr($1, 3, 2); print a"_"b;}' "$prefix".012.indv | paste - "$prefix"_mod.012 > "$prefix"_"$matrix"
 
 # Nexus file variables requiring intermediate files
 ##### number of taxa, use .012.indv file or intermediate matrix file
-Ntax=$(cat "$matrix" | wc -l)
+Ntax=$(cat "$prefix"_"$matrix" | wc -l)
 
 ##### number of snps, use modified .012 file to count characters then divide by # individuals
 Nchar=$(( `cat "$prefix"_mod.012 | wc -c`/$Ntax ))
 
 # Nexus file header and body creation
-echo -e "#NEXUS\n[Written $(date)]\nBEGIN Data;" > "$outfile"
-echo -e "\tDIMENSIONS NTAX="$Ntax" NCHAR="$Nchar";" >> "$outfile"
-echo -e "\tFORMAT DATATYPE="$datatype" Symbols="$symbols" INTERLEAVE="$interleave" missing="$missing";" >> "$outfile"
-echo "Matrix" >> "$outfile"
-cat "$matrix" >> "$outfile"
-echo -e ";\nEND;" >> "$outfile"
+echo -e "#NEXUS\n[Written $(date)]\nBEGIN Data;" > "$prefix"_"$outfile"
+echo -e "\tDIMENSIONS NTAX="$Ntax" NCHAR="$Nchar";" >> "$prefix"_"$outfile"
+echo -e "\tFORMAT DATATYPE="$datatype" Symbols="$symbols" INTERLEAVE="$interleave" missing="$missing";" >> "$prefix"_"$outfile"
+echo "Matrix" >> "$prefix"_"$outfile"
+cat "$prefix"_"$matrix" >> "$prefix"_"$outfile"
+echo -e ";\nEND;" >> "$prefix"_"$outfile"
