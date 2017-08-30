@@ -63,25 +63,26 @@ vcftools --vcf "$infile" --out "$prefix" \
 #File ".012.indv" details the individuals in the main file.
 #File ".012.pos" details the site locations in the main file.
 
-########## "NEED TO REMOVE FIRST COLUMN FROM GENOTYPE (.012) FILE B/C JUST ROW #"
+# create modified .012 file
+# perl replaces -1 with ? and cut selects all columns from the second to the end and eliminates tab delimiter
 ########## "REPLACE -1 WITH ?"
+########## "NEED TO REMOVE FIRST COLUMN FROM GENOTYPE (.012) FILE B/C JUST ROW #"
 ########## "CONCATENATE COLUMNS, CURRENTLY SEPARATED BY TAB"
 
-# create modified .012 file
-perl # replace -1 with ?, pipe to remove all tabs
-perl -plne 's/-1/?/g' "$out1.vcf" | perl -plne 's/\t//g' - > "$out2".vcf
+perl -plne 's/\-1/?/g' "$prefix".012 | cut -f 2- - | perl -plne 's/\t//g' - > "$prefix"_mod.012
 
+# create final matrix of sample IDs and genotype matrix
 ########## SPLIT NAMES IN ".012.indv" FILE AND ADD UNDERSCORE" ##############
 ########## CONCATENATE FILES BY LINE: paste file1.txt file2.txt
 
-awk '{a=substr($1, 1, 2); b=substr($1, 3, 2); print a"_"b;}' "$prefix".012.indv | paste - "$prefix".012 > "$matrix"
+awk '{a=substr($1, 1, 2); b=substr($1, 3, 2); print a"_"b;}' "$prefix".012.indv | paste - "$prefix"_mod.012 > "$matrix"
 
 # Nexus file variables requiring intermediate files
 ##### number of taxa, use .012.indv file or intermediate matrix file
 Ntax=$(cat "$matrix" | wc -l)
 
 ##### number of snps, use modified .012 file to count characters then divide by # individuals
-Nchar=$(( `cat "$prefix".012 | wc -c`/$Ntax )) #number of snps ------------ USE .012 FILE TO COUNT CHARACTERS THEN DIVIDE BY # INDIVIDUALS ----------
+Nchar=$(( `cat "$prefix"_mod.012 | wc -c`/$Ntax ))
 
 # Nexus file header and body creation
 echo -e "#NEXUS\n[Written $(date)]\nBEGIN Data;" > "$outfile"
