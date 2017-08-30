@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK
-#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-snapp.txt
-#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-snapp.txt
+#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-vcf2nex.txt
+#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-vcf2nex.txt
 #SBATCH -J vcf2nex
 #SBATCH -p bigmemm
 #SBATCH -n 1
