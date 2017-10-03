@@ -1,13 +1,15 @@
-#!/bin/bash
-#SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/VCF/
+#!/bin/bash -l
+#SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-snapp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-snapp.txt
 #SBATCH -J snapp
-#SBATCH -p serial
+#SBATCH -p bigmemm
 #SBATCH -n 1
-#SBATCH -c 6
-#SBATCH --mem=9000M
+#SBATCH -c 4
 #SBATCH -t 40-00:00:00
+#SBATCH --mail-user=dmvelasco@ucdavis.edu
+#SBATCH --mail-type=ALL
+#SBATCH --mem=30G
 set -e
 set -u
 
@@ -16,7 +18,8 @@ module load java
 
 # Declare directories
 dir1="/home/dmvelasc/Software/beast/bin"			# Beast binary directory
-dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF"		# VCF directory
+#dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF"		# VCF directory
+dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"		# VCF directory
 
 # step 1
 # convert nexus format to xml with beauti - convert locally
@@ -50,4 +53,5 @@ dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF"		# VCF directory
 # below 2016-11-03
 #"$dir1"/beast "$dir2"/amyg3.xml
 # below 2017-03-03
-"$dir1"/beast "$dir2"/snapp_amygtest4_final.xml
+#"$dir1"/beast "$dir2"/snapp_amygtest4_final.xml
+"$dir1"/beast "$dir2"/final14sept.xml

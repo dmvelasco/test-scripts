@@ -1,20 +1,19 @@
 #!/bin/bash -l
-#SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/smcpp
-#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-smcpp.txt
-#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-smcpp.txt
-#SBATCH -J smcpp
+#SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/
+#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-phase.txt
+#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-phase.txt
+#SBATCH -J test
 #SBATCH -p bigmemm
-#SBATCH -t 12:00:00
+#SBATCH -t 14-00:00:00
 #SBATCH -n 1
-#SBATCH -c 12
+#SBATCH -c 20
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
-#SBATCH --mem=92G
+#SBATCH --mem=152G
 set -e
 set -u
 
 ########## WRITTEN BY D. VELASCO ###########
-## initial set up borrowed from M Stetter ##
 
 ####################
 ### Load modules ###
@@ -36,86 +35,189 @@ vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/all_jointcalls.vcf"
 # filtered joint VCF file - dulcis test VCF file
 vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
 # SMC++ prepped file directory
-smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
-
-####### PARAMETERS #######
-mu="1.38e-8"	# population mutation rate
-cut="5000"	# cutoff length for homozygosity
-pop="PP"	# population
+bam_dir="/group/jrigrp3/Velasco/Prunus/BAM"
 
 ####################
 ### Begin script ###
 ####################
-echo -e "begin SMC++ preparation\n get individuals"
-date
 
-# select individuals
-# PD; dulcis; subset=all; 18 individuals; 12 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PD02 --indv PD03 --indv PD04 --indv PD05 --indv PD06 --indv PD07 --indv PD08 --indv PD09 --indv PD10 --indv PD11 --indv PD12 --indv PD13 --indv PD14 --indv PD16 --indv PD17 --indv PD18 --indv PD20 --indv PD21 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
-# PP; persica; subset=all; 14 individuals; 12 CPU
-sub="all" #subset name
-vcftools --vcf "$vcf" --indv PP02 --indv PP03 --indv PP04 --indv PP05 --indv PP06 --indv PP08 --indv PP11 --indv PP13 --indv PP14 --indv PP15 --indv PP37 --indv PP38 --indv PP39 --indv PP40 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
-# PM; mira; subset=all; 6 individuals; 4 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PM01 --indv PM02 --indv PM03 --indv PM04 --indv PM05 --indv PM06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
-# PV; davidiana; subset=all; 6 individuals; 4 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PV01 --indv PV02 --indv PV03 --indv PV04 --indv PV05 --indv PV06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
-# PS; kansuensis; subset=all; 4 individuals; 4 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
-# PG; ferganensis; subset=all; 4 individuals; 4 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PG02 --indv PG03 --indv PG04 --indv PG05 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+# basic script
+srun whatshap phase -o "$vcf_filt"/single_jointcalls_phased.vcf.gz \
+-r "$genome" "$vcf" \
+"$bam_dir"/PB01_sorted_markdup.bam \
+"$bam_dir"/PR01_sorted_markdup.bam \
+"$bam_dir"/PU01_sorted_markdup.bam \
+"$bam_dir"/PC01_sorted_markdup.bam \
+"$bam_dir"/PF01_sorted_markdup.bam \
+"$bam_dir"/PK01_sorted_markdup.bam \
+"$bam_dir"/PT01_sorted_markdup.bam \
+--sample PB01 \
+--sample PR01 \
+--sample PU01 \
+--sample PC01 \
+--sample PF01 \
+--sample PK01 \
+--sample PT01 \
+--indels
 
-mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/all_"$pop".recode.vcf "$vcf_filt"/
+srun whatshap phase -o "$vcf_filt"/PV_jointcalls_phased.vcf.gz \
+-r "$genome" "$vcf" \
+"$bam_dir"/PV01_sorted_markdup.bam \
+"$bam_dir"/PV02_sorted_markdup.bam \
+"$bam_dir"/PV03_sorted_markdup.bam \
+"$bam_dir"/PV04_sorted_markdup.bam \
+"$bam_dir"/PV05_sorted_markdup.bam \
+"$bam_dir"/PV06_sorted_markdup.bam \
+--sample PV01 \
+--sample PV02 \
+--sample PV03 \
+--sample PV04 \
+--sample PV05 \
+--sample PV06 \
+--indels
 
-echo -e "convert vcf file to SMC++ format file"
-date
+srun whatshap phase -o "$vcf_filt"/PG_jointcalls_phased.vcf.gz \
+-r "$genome" "$vcf" \
+"$bam_dir"/PG02_sorted_markdup.bam \
+"$bam_dir"/PG03_sorted_markdup.bam \
+"$bam_dir"/PG04_sorted_markdup.bam \
+"$bam_dir"/PG05_sorted_markdup.bam \
+--sample PG02 \
+--sample PG03 \
+--sample PG04 \
+--sample PG05 \
+--indels
 
-bgzip -f "$vcf_filt"/all_"$pop".recode.vcf > "$vcf_filt"/all_"$pop".recode.vcf.gz
-tabix -fp vcf "$vcf_filt"/all_"$pop".recode.vcf.gz
+srun whatshap phase -o "$vcf_filt"/PS_jointcalls_phased.vcf.gz \
+-r "$genome" "$vcf" \
+--sample PS01 \
+--sample PS02 \
+--sample PS03 \
+--sample PS04 \
+"$bam_dir"/PS01_sorted_markdup.bam \
+"$bam_dir"/PS02_sorted_markdup.bam \
+"$bam_dir"/PS03_sorted_markdup.bam \
+"$bam_dir"/PS04_sorted_markdup.bam \
+--indels
 
-echo -e "Run for loop by chromosome as per smcpp instructions"
-date
+srun whatshap phase -o "$vcf_filt"/PM_jointcalls_phased.vcf.gz \
+-r "$genome" "$vcf" \
+"$bam_dir"/PM01_sorted_markdup.bam \
+"$bam_dir"/PM02_sorted_markdup.bam \
+"$bam_dir"/PM03_sorted_markdup.bam \
+"$bam_dir"/PM04_sorted_markdup.bam \
+"$bam_dir"/PM05_sorted_markdup.bam \
+"$bam_dir"/PM06_sorted_markdup.bam \
+--sample PM01 \
+--sample PM02 \
+--sample PM03 \
+--sample PM04 \
+--sample PM05 \
+--sample PM06 \
+--indels
 
-for i in {1..8}; do
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD14,PD16,PD17,PD18,PD20,PD21
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PP02,PP03,PP04,PP05,PP06,PP08,PP11,PP13,PP14,PP15,PP37,PP38,PP39,PP40
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PM01,PM02,PM03,PM04,PM05,PM06
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PV01,PV02,PV03,PV04,PV05,PV06
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PS01,PS02,PS03,PS04
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PG02,PG03,PG04,PG05
-done
+srun whatshap phase -o "$vcf_filt"/PP_jointcalls_phased.vcf.gz \
+-r "$genome" "$vcf" \
+"$bam_dir"/PP01_sorted_markdup.bam \
+"$bam_dir"/PP02_sorted_markdup.bam \
+"$bam_dir"/PP03_sorted_markdup.bam \
+"$bam_dir"/PP04_sorted_markdup.bam \
+"$bam_dir"/PP05_sorted_markdup.bam \
+"$bam_dir"/PP06_sorted_markdup.bam \
+"$bam_dir"/PP08_sorted_markdup.bam \
+"$bam_dir"/PP09_sorted_markdup.bam \
+"$bam_dir"/PP11_sorted_markdup.bam \
+"$bam_dir"/PP12_sorted_markdup.bam \
+"$bam_dir"/PP13_sorted_markdup.bam \
+"$bam_dir"/PP14_sorted_markdup.bam \
+"$bam_dir"/PP15_sorted_markdup.bam \
+"$bam_dir"/PP37_sorted_markdup.bam \
+"$bam_dir"/PP38_sorted_markdup.bam \
+"$bam_dir"/PP39_sorted_markdup.bam \
+"$bam_dir"/PP40_sorted_markdup.bam \
+--sample PP01 \
+--sample PP02 \
+--sample PP03 \
+--sample PP04 \
+--sample PP05 \
+--sample PP06 \
+--sample PP08 \
+--sample PP09 \
+--sample PP11 \
+--sample PP12 \
+--sample PP13 \
+--sample PP14 \
+--sample PP15 \
+--sample PP37 \
+--sample PP38 \
+--sample PP39 \
+--sample PP40 \
+--indels
 
+srun whatshap phase -o "$vcf_filt"/PD_jointcalls_phased.vcf.gz \
+-r "$genome" "$vcf" \
+"$bam_dir"/PD01_sorted_markdup.bam \
+"$bam_dir"/PD02_sorted_markdup.bam \
+"$bam_dir"/PD03_sorted_markdup.bam \
+"$bam_dir"/PD04_sorted_markdup.bam \
+"$bam_dir"/PD05_sorted_markdup.bam \
+"$bam_dir"/PD06_sorted_markdup.bam \
+"$bam_dir"/PD07_sorted_markdup.bam \
+"$bam_dir"/PD08_sorted_markdup.bam \
+"$bam_dir"/PD09_sorted_markdup.bam \
+"$bam_dir"/PD10_sorted_markdup.bam \
+"$bam_dir"/PD11_sorted_markdup.bam \
+"$bam_dir"/PD12_sorted_markdup.bam \
+"$bam_dir"/PD13_sorted_markdup.bam \
+"$bam_dir"/PD14_sorted_markdup.bam \
+"$bam_dir"/PD16_sorted_markdup.bam \
+"$bam_dir"/PD17_sorted_markdup.bam \
+"$bam_dir"/PD18_sorted_markdup.bam \
+"$bam_dir"/PD19_sorted_markdup.bam \
+"$bam_dir"/PD20_sorted_markdup.bam \
+"$bam_dir"/PD21_sorted_markdup.bam \
+--sample PD01 \
+--sample PD02 \
+--sample PD03 \
+--sample PD04 \
+--sample PD05 \
+--sample PD06 \
+--sample PD07 \
+--sample PD08 \
+--sample PD09 \
+--sample PD10 \
+--sample PD11 \
+--sample PD12 \
+--sample PD13 \
+--sample PD14 \
+--sample PD16 \
+--sample PD17 \
+--sample PD18 \
+--sample PD19 \
+--sample PD20 \
+--sample PD21 \
+--indels
 
-echo -e "begin SMC++ analysis"
-date
-# SMC++ analysis
-smc++ estimate -o smc_analysis/ "$mu" "$smc_in"/*"$pop"*.smc.gz
-
-#--polarization-error 0.5
-# --polarization-error: if the identity of the ancestral allele is not known,
-# these options can be used to specify a prior over it. With polarization error p,
-# emissions probabilities for entry CSFS(a,b) will be computed as
-# (1-p) CSFS(a,b) + p CSFS(2-a, n-b). The default setting is 0.5,
-# i.e. the identity of the ancestral allele is not known.
-# --unfold is an alias for --polarization-error 0. If the ancestral allele is known
-# (from an outgroup, say) then this option will use the unfolded SFS for computing
-# probabilities. Incorrect usage of this feature may lead to erroneous results.
-# $mu is per generation mutation rate, will probably need to run with three different values based on Xie et al.
-
-echo -e "plot SMC++ results"
-date
-smc++ plot history_"$pop"_"$mu".pdf smc_analysis/model.final.json
-#-g	sets generation time in years to scale x-axis, otherwise in coalescent units
-#--logy	plots the y-axis on a log scale
-#-c	produces CSV-formatted table containing the data used to generate the plot
-
-# move files output files to subdirectory
-mkdir -p smc_analysis/"$pop"_"$sub"_"$mu"
-mv smc_analysis/model.final.json smc_analysis/"$pop"_"$sub"_"$mu"
-mv smc_analysis/.model.iter*.json smc_analysis/"$pop"_"$sub"_"$mu"
-mv smc_analysis/.debug.txt smc_analysis/"$pop"_"$sub"_"$mu"
+# multiple bams can be combined on the command line, program automatically detects sample(s) from file
+#Input pre-procession, selection, and filtering:
+#  --max-coverage MAXCOV, -H MAXCOV
+#                        Reduce coverage to at most MAXCOV (default: 15).
+#  --mapping-quality QUAL, --mapq QUAL
+#                        Minimum mapping quality (default: 20)
+#  --indels              Also phase indels (default: do not phase indels)
+#  --ignore-read-groups  Ignore read groups in BAM header and assume all reads
+#                        come from the same sample.
+#  --sample SAMPLE       Name of a sample to phase. If not given, all samples
+#                        in the input VCF are phased. Can be used multiple
+#                        times.
+#Genotyping:
+#  --full-genotyping     Completely re-genotype all variants based on read
+#                        data, ignores all genotype data that might be present
+#                        in the VCF (EXPERIMENTAL FEATURE).
+#  --distrust-genotypes  Allow switching variants from hetero- to homozygous in
+#                        an optimal solution (see documentation).
+#  --include-homozygous  Also work on homozygous variants, which might be
+#                        turned to heterozygous
+#  --changed-genotype-list FILE
+#                        Write list of changed genotypes to FILE.
 

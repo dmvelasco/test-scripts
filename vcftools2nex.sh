@@ -21,14 +21,13 @@ module load vcftools
 dir1="/home/dmvelasc/bin"					# software binary directory
 dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"		# VCF directory
 dir3="/home/dmvelasc/Data/references/persica-SCF"		# FASTA reference directory
-dir4="/group/jrigrp3/Velasco/Prunus/BAM"
 
 # Declare other variables
 infile="all_jointcalls.vcf"	# input vcf
-prefix="alltest2"		# prefix for intermediate and other files
+prefix="snappset"		# prefix for intermediate and other files
 thin="5000"			# spacing between each SNP
 matrix="final.txt"		# transposed file; used in "$prefix"_"$matrix"
-outfile="final.nex"		# final file name; uses in "$prefix"_"$outfile"
+outfile="final.nex"		# final file name; used in "$prefix"_"$outfile"
 
 # NEXUS variables
 #DIMENSIONS (see below)
@@ -50,6 +49,24 @@ vcftools --vcf "$infile" --out "$prefix" \
 --chr scaffold_6 \
 --chr scaffold_7 \
 --chr scaffold_8 \
+--indv PB01 \
+--indv PR01 \
+--indv PU01 \
+--indv PC01 \
+--indv PV03 \
+--indv PV06 \
+--indv PG03 \
+--indv PG05 \
+--indv PS02 \
+--indv PS04 \
+--indv PM01 \
+--indv PM03 \
+--indv PK01 \
+--indv PT01 \
+--indv PP02 \
+--indv PP37 \
+--indv PD03 \
+--indv PD04 \
 --thin "$thin"\
 --remove-indels \
 --max-alleles 2 \
@@ -83,7 +100,7 @@ awk '{a=substr($1, 1, 2); b=substr($1, 3, 2); print a"_"b;}' "$prefix".012.indv 
 Ntax=$(cat "$prefix"_"$matrix" | wc -l)
 
 ##### number of snps, use modified .012 file to count characters then divide by # individuals
-Nchar=$(( `cat "$prefix"_mod.012 | wc -c`/$Ntax ))
+Nchar=$(( `cat "$prefix"_mod.012 | wc -c`/$Ntax - 1 ))
 
 # Nexus file header and body creation
 echo -e "#NEXUS\n[Written $(date)]\nBEGIN Data;" > "$prefix"_"$outfile"
