@@ -25,9 +25,9 @@ dir3="/home/dmvelasc/Data/references/persica-SCF"		# FASTA reference directory
 # Declare other variables
 infile="all_jointcalls.vcf"	# input vcf
 prefix="snappset"		# prefix for intermediate and other files
-thin="5000"			# spacing between each SNP
-matrix="final.txt"		# transposed file; used in "$prefix"_"$matrix"
-outfile="final.nex"		# final file name; used in "$prefix"_"$outfile"
+thin="15000"			# spacing between each SNP
+matrix="15Kfinal.txt"		# transposed file; used in "$prefix"_"$matrix"
+outfile="15Kfinal.nex"		# final file name; used in "$prefix"_"$outfile"
 
 # NEXUS variables
 #DIMENSIONS (see below)
