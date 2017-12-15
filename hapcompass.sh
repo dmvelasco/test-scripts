@@ -70,4 +70,5 @@ vcftools --vcf "$vcf" --out "$sample" --indv "$sample" --recode
 
 # HapCompass script, export hard java "heap memory" limit range
 export _JAVA_OPTIONS="-Xms4g -Xmx30g"
-java -Xmx30g -jar "$hapcompass" -bam "$bam_dir"/"$sample"_sorted_markdup.bam -vcf "$vcf_dir"/"$sample".recode.vcf -o "$vcf_dir"/"$sample"_phased.vcf
+#java -Xmx30g -jar "$hapcompass" -bam "$bam_dir"/"$sample"_sorted_markdup.bam -vcf "$vcf_dir"/"$sample".recode.vcf -o "$vcf_dir"/"$sample"_phased.vcf
+java -Xmx30g -jar "$hapcompass" -bam "$bam_dir"/"$sample"_HCrealign.bam -vcf "$vcf_dir"/"$sample".recode.vcf -o "$vcf_dir"/"$sample"_phased.vcf
