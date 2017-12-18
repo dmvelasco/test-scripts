@@ -41,7 +41,7 @@ smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
 ####### PARAMETERS #######
 mu="7.77e-9"	# population mutation rate
 cut="5000"	# cutoff length for homozygosity
-pop="PS"	# population
+pop="PG"	# population
 
 ####################
 ### Begin script ###
@@ -69,12 +69,12 @@ date
 #vcftools --vcf "$vcf" --indv PV01 --indv PV02 --indv PV03 --indv PV04 --indv PV05 --indv PV06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
 # PS; kansuensis; subset=all; 4 individuals; 4 CPU
-sub="all" #subset name
-vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+#sub="all" #subset name
+#vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
 # PG; ferganensis; subset=all; 4 individuals; 4 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PG02 --indv PG03 --indv PG04 --indv PG05 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+sub="all" #subset name
+vcftools --vcf "$vcf" --indv PG02 --indv PG03 --indv PG04 --indv PG05 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
 ##### NEEDED FOR INITIAL PREP #####
 mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/"$sub"_"$pop".recode.vcf "$vcf_filt"/
@@ -95,8 +95,8 @@ for i in {1..8}; do
 #  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PP02,PP03,PP04,PP05,PP06,PP08,PP11,PP13,PP14,PP15,PP37,PP38,PP39,PP40
 #  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PM01,PM02,PM03,PM04,PM05,PM06
 #  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PV01,PV02,PV03,PV04,PV05,PV06
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PS01,PS02,PS03,PS04
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PG02,PG03,PG04,PG05
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PS01,PS02,PS03,PS04
+  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PG02,PG03,PG04,PG05
 done
 
 
