@@ -6,10 +6,10 @@
 #SBATCH -p bigmemm
 #SBATCH -t 12:00:00
 #SBATCH -n 1
-#SBATCH -c 5
+#SBATCH -c 10
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
-#SBATCH --mem=40G
+#SBATCH --mem=80G
 set -e
 set -u
 
@@ -41,7 +41,7 @@ smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
 ####### PARAMETERS #######
 mu="7.77e-9"	# population mutation rate
 cut="5000"	# cutoff length for homozygosity
-pop="PS"	# population
+pop="PV"	# population
 
 ####################
 ### Begin script ###
@@ -65,12 +65,13 @@ date
 #vcftools --vcf "$vcf" --indv PM01 --indv PM02 --indv PM03 --indv PM04 --indv PM05 --indv PM06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
 # PV; davidiana; subset=all; 6 individuals; 6 CPU
-#sub="all" #subset name
+sub="01-04" #subset name
 #vcftools --vcf "$vcf" --indv PV01 --indv PV02 --indv PV03 --indv PV04 --indv PV05 --indv PV06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+vcftools --vcf "$vcf" --indv PV01 --indv PV02 --indv PV03 --indv PV04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
 # PS; kansuensis; subset=all; 4 individuals; 5 CPU
-sub="all" #subset name
-vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+#sub="all" #subset name
+#vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
 # PG; ferganensis; subset=all; 4 individuals; 4 CPU
 #sub="all" #subset name
@@ -83,26 +84,27 @@ echo -e "convert vcf file to SMC++ format file"
 date
 
 ##### NEEDED FOR INITIAL PREP #####
-bgzip -f "$vcf_filt"/all_"$pop".recode.vcf > "$vcf_filt"/all_"$pop".recode.vcf.gz
-tabix -fp vcf "$vcf_filt"/all_"$pop".recode.vcf.gz
+bgzip -f "$vcf_filt"/"$sub"_"$pop".recode.vcf > "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz
+tabix -fp vcf "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz
 
 echo -e "Run for loop by chromosome as per smcpp instructions"
 date
 
 ##### NEEDE FOR INITIAL PREP #####
 for i in {1..8}; do
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD14,PD16,PD17,PD18,PD20,PD21
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PP02,PP03,PP04,PP05,PP06,PP08,PP11,PP13,PP14,PP15,PP37,PP38,PP39,PP40
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PM01,PM02,PM03,PM04,PM05,PM06
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PV01,PV02,PV03,PV04,PV05,PV06
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PS01,PS02,PS03,PS04
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop".recode.vcf.gz "$smc_in"/all_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PG02,PG03,PG04,PG05
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD14,PD16,PD17,PD18,PD20,PD21
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PP02,PP03,PP04,PP05,PP06,PP08,PP11,PP13,PP14,PP15,PP37,PP38,PP39,PP40
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PM01,PM02,PM03,PM04,PM05,PM06
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PV01,PV02,PV03,PV04,PV05,PV06
+  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PV01,PV02,PV03,PV04
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PS01,PS02,PS03,PS04
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PG02,PG03,PG04,PG05
 done
 
 
 echo -e "begin SMC++ analysis"
 date
-##### NEEDE FOR ANALYSIS #####
+##### NEEDED FOR ANALYSIS #####
 # SMC++ analysis
 smc++ estimate -o smc_analysis/ "$mu" "$smc_in"/*"$pop"*.smc.gz
 
@@ -121,6 +123,8 @@ smc++ estimate -o smc_analysis/ "$mu" "$smc_in"/*"$pop"*.smc.gz
 echo -e "plot SMC++ results"
 date
 smc++ plot -c "$pop"_"$mu"_"$sub".pdf smc_analysis/model.final.json
+smc++ plot -g 10 "$pop"_"$mu"_"$sub"_years.pdf smc_analysis/model.final.json
+smc++ plot --logy "$pop"_"$mu"_"$sub"_logY.pdf smc_analysis/model.final.json
 #-g	sets generation time in years to scale x-axis, otherwise in coalescent units
 #--logy	plots the y-axis on a log scale
 #-c	produces CSV-formatted table containing the data used to generate the plot
