@@ -40,97 +40,102 @@ smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
 
 ####### PARAMETERS #######
 mu="7.77e-9"	# population mutation rate
+  # 7.77e-9 (parent to selfed progeny)
+  # 9.48e-9 (low heterozygosity peach to progeny)
+  # 1.38e-8 (high heterozygosity peach to interspecific cross to selfed progeny)
+  # Xie et al. 2016
 cut="5000"	# cutoff length for homozygosity
 pop="PV"	# population
 
 ####################
 ### Begin script ###
 ####################
-echo -e "begin SMC++ preparation\n get individuals"
-date
+for i in {0..21}; do
 
-##### NEEDED FOR INITIAL PREP #####
-# select individuals
+  ##### ACQUIRE SETUP DATA #####
+  # path to sample list
+  list="/home/dmvelasc/Projects/Prunus/Script/smcpp_data.txt"
+  # mapfile to extract sample ID and read name information, each line is array item
+  mapfile -s "$i" -n 1 -t id < "${list}"
+  # -s number of rows to skip
+  # -n number of rows to read
+  # -t (remove leading/trailing whitespace?)
+  # id is the array name (anything in this position is the array name if nothing then called ?array)
+  # create an array from each two column line
+  arr=(`echo "${id[0]}"`)
 
-# PD; dulcis; subset=all; 18 individuals; 12 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PD02 --indv PD03 --indv PD04 --indv PD05 --indv PD06 --indv PD07 --indv PD08 --indv PD09 --indv PD10 --indv PD11 --indv PD12 --indv PD13 --indv PD14 --indv PD16 --indv PD17 --indv PD18 --indv PD20 --indv PD21 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+  # declare variables, created from array
+  pop="${arr[0]}"
+  sub="${arr[1]}"
+  sample1="${arr[2]}"
+  sample2="${arr[3]}"
+  sample3="${arr[4]}"
+  sample4="${arr[5]}"
 
-# PP; persica; subset=all; 14 individuals; 12 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PP02 --indv PP03 --indv PP04 --indv PP05 --indv PP06 --indv PP08 --indv PP11 --indv PP13 --indv PP14 --indv PP15 --indv PP37 --indv PP38 --indv PP39 --indv PP40 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
-# PM; mira; subset=all; 6 individuals; 6 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PM01 --indv PM02 --indv PM03 --indv PM04 --indv PM05 --indv PM06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+  echo -e "begin SMC++ preparation\n get individuals"
+  date
 
-# PV; davidiana; subset=all; 6 individuals; 6 CPU
-sub="01-04" #subset name
-#vcftools --vcf "$vcf" --indv PV01 --indv PV02 --indv PV03 --indv PV04 --indv PV05 --indv PV06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
-vcftools --vcf "$vcf" --indv PV01 --indv PV02 --indv PV03 --indv PV04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+  ##### NEEDED FOR INITIAL PREP #####
 
-# PS; kansuensis; subset=all; 4 individuals; 5 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+  # PD; dulcis; subset=all; 18 individuals; 12 CPU
+  # PP; persica; subset=all; 14 individuals; 12 CPU
+  # PM; mira; subset=all; 6 individuals; 6 CPU
+  # PV; davidiana; subset=all; 6 individuals; 6 CPU; 4 individuals 10 CPU (????)
+  # PS; kansuensis; subset=all; 4 individuals; 5 CPU
+  # PG; ferganensis; subset=all; 4 individuals; 4 CPU
+  vcftools --vcf "$vcf" --indv "$sample1" --indv "$sample2" --indv "$sample3" --indv "$sample4" --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
 
-# PG; ferganensis; subset=all; 4 individuals; 4 CPU
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PG02 --indv PG03 --indv PG04 --indv PG05 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"$pop"
+  ##### NEEDED FOR INITIAL PREP #####
+  mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/"$sub"_"$pop".recode.vcf "$vcf_filt"/
 
-##### NEEDED FOR INITIAL PREP #####
-mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/"$sub"_"$pop".recode.vcf "$vcf_filt"/
+  echo -e "convert vcf file to SMC++ format file"
+  date
 
-echo -e "convert vcf file to SMC++ format file"
-date
+  ##### NEEDED FOR INITIAL PREP #####
+  bgzip -f "$vcf_filt"/"$sub"_"$pop".recode.vcf > "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz
+  tabix -fp vcf "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz
 
-##### NEEDED FOR INITIAL PREP #####
-bgzip -f "$vcf_filt"/"$sub"_"$pop".recode.vcf > "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz
-tabix -fp vcf "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz
+  echo -e "Run for loop by chromosome as per smcpp instructions"
+  date
 
-echo -e "Run for loop by chromosome as per smcpp instructions"
-date
+  ##### NEEDE FOR INITIAL PREP #####
+  for i in {1..8}; do
+    smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":"$sample1","$sample2","$sample3","$sample4"
+  done
 
-##### NEEDE FOR INITIAL PREP #####
-for i in {1..8}; do
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD14,PD16,PD17,PD18,PD20,PD21
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PP02,PP03,PP04,PP05,PP06,PP08,PP11,PP13,PP14,PP15,PP37,PP38,PP39,PP40
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PM01,PM02,PM03,PM04,PM05,PM06
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PV01,PV02,PV03,PV04,PV05,PV06
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PV01,PV02,PV03,PV04
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PS01,PS02,PS03,PS04
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$sub"_"$pop".recode.vcf.gz "$smc_in"/"$sub"_"$pop"_"$i".smc.gz scaffold_"$i" "$pop":PG02,PG03,PG04,PG05
+
+  echo -e "begin SMC++ analysis"
+  date
+  ##### NEEDED FOR ANALYSIS #####
+  # SMC++ analysis
+  smc++ estimate -o smc_analysis/ "$mu" "$smc_in"/*"$pop"*.smc.gz
+
+  # --polarization-error 0.5
+  # --polarization-error: if the identity of the ancestral allele is not known,
+  # these options can be used to specify a prior over it. With polarization error p,
+  # emissions probabilities for entry CSFS(a,b) will be computed as
+  # (1-p) CSFS(a,b) + p CSFS(2-a, n-b). The default setting is 0.5,
+  # i.e. the identity of the ancestral allele is not known.
+  # --unfold is an alias for --polarization-error 0. If the ancestral allele is known
+  # (from an outgroup, say) then this option will use the unfolded SFS for computing
+  # probabilities. Incorrect usage of this feature may lead to erroneous results.
+  # $mu is per generation mutation rate, will probably need to run with three different values based on Xie et al.
+
+  ##### FINAL GRAPHICAL OUTPUT #####
+  echo -e "plot SMC++ results"
+  date
+  smc++ plot -c "$pop"_"$mu"_"$sub".pdf smc_analysis/model.final.json
+  smc++ plot -g 10 "$pop"_"$mu"_"$sub"_years.pdf smc_analysis/model.final.json
+  smc++ plot --logy "$pop"_"$mu"_"$sub"_logY.pdf smc_analysis/model.final.json
+  #-g	sets generation time in years to scale x-axis, otherwise in coalescent units
+  #--logy	plots the y-axis on a log scale
+  #-c	produces CSV-formatted table containing the data used to generate the plot
+
+  # move files output files to subdirectory
+  mkdir -p smc_analysis/"$pop"_"$sub"_"$mu"
+  mv smc_analysis/model.final.json smc_analysis/"$pop"_"$sub"_"$mu"
+  mv smc_analysis/.model.iter*.json smc_analysis/"$pop"_"$sub"_"$mu"
+  mv smc_analysis/.debug.txt smc_analysis/"$pop"_"$sub"_"$mu"
+
 done
-
-
-echo -e "begin SMC++ analysis"
-date
-##### NEEDED FOR ANALYSIS #####
-# SMC++ analysis
-smc++ estimate -o smc_analysis/ "$mu" "$smc_in"/*"$pop"*.smc.gz
-
-#--polarization-error 0.5
-# --polarization-error: if the identity of the ancestral allele is not known,
-# these options can be used to specify a prior over it. With polarization error p,
-# emissions probabilities for entry CSFS(a,b) will be computed as
-# (1-p) CSFS(a,b) + p CSFS(2-a, n-b). The default setting is 0.5,
-# i.e. the identity of the ancestral allele is not known.
-# --unfold is an alias for --polarization-error 0. If the ancestral allele is known
-# (from an outgroup, say) then this option will use the unfolded SFS for computing
-# probabilities. Incorrect usage of this feature may lead to erroneous results.
-# $mu is per generation mutation rate, will probably need to run with three different values based on Xie et al.
-
-##### FINAL GRAPHICAL OUTPUT #####
-echo -e "plot SMC++ results"
-date
-smc++ plot -c "$pop"_"$mu"_"$sub".pdf smc_analysis/model.final.json
-smc++ plot -g 10 "$pop"_"$mu"_"$sub"_years.pdf smc_analysis/model.final.json
-smc++ plot --logy "$pop"_"$mu"_"$sub"_logY.pdf smc_analysis/model.final.json
-#-g	sets generation time in years to scale x-axis, otherwise in coalescent units
-#--logy	plots the y-axis on a log scale
-#-c	produces CSV-formatted table containing the data used to generate the plot
-
-# move files output files to subdirectory
-mkdir -p smc_analysis/"$pop"_"$sub"_"$mu"
-mv smc_analysis/model.final.json smc_analysis/"$pop"_"$sub"_"$mu"
-mv smc_analysis/.model.iter*.json smc_analysis/"$pop"_"$sub"_"$mu"
-mv smc_analysis/.debug.txt smc_analysis/"$pop"_"$sub"_"$mu"
