@@ -6,10 +6,10 @@
 #SBATCH -p bigmemh
 #SBATCH -t 4:00:00
 #SBATCH -n 1
-#SBATCH -c 8
+#SBATCH -c 10
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
-#SBATCH --mem=56G
+#SBATCH --mem=64G
 set -e
 set -u
 
@@ -29,22 +29,54 @@ module load tabix
 #############################
 
 ####### ARRAYS #######
-# population array
-declare -a pop=(PD PP PM PV PS PG)
 
-# samples for each population
-# PD, pop[0]
-dulcis="PD02,PD03,PD04,PD05,PD06,PD07,PD08,PD09,PD10,PD11,PD12,PD13,PD14,PD16,PD17,PD18,PD20,PD21"
-# PP, pop[1]
-persica="PP02,PP03,PP04,PP05,PP06,PP08,PP11,PP13,PP14,PP15,PP37,PP38,PP39,PP40"
-# PM, pop[2]
-mira="PM01,PM02,PM03,PM04,PM05,PM06"
-# PV, pop[3]
-davidiana="PV01,PV02,PV03,PV04,PV05,PV06"
-# PS, pop[4]
-kansuensis="PS01,PS02,PS03,PS04"
-# PG, pop[5]
-ferganensis="PG02,PG03,PG04,PG05"
+##############################
+##### ACQUIRE SETUP DATA #####
+## TWO FOR SPLIT ##
+# path to sample list
+list="/home/dmvelasc/Projects/Prunus/Script/smcpp_data.txt"
+# view list to select pops/subpops, important below
+# PD	sub1-10			lines 1-10
+# PD	sub1	range		line 1
+# PD	sub7	China		line 7
+# PD	sub8	C Asia		line 8
+# PD	sub10	S Europe/W Asia	line 10
+# PP	sub1-7			lines 11-17
+# PP	sub1	range		line 11
+# PP	sub3	China		line 13
+# PP	sub4	China/Korea	line 14
+# PM	sub1-3			lines 18-20
+# PV	sub1-2			lines 21-22
+# PS	all			line 23
+# PG	all			line 24
+
+line1=1		#line number of first pop/subpop wanted
+line2=21	#line number of second pop/subpop wanted
+
+# mapfile to extract first pop/subpop information and send to an array
+mapfile -s "$line1" -n 1 -t id < "${list}"
+arr=(`echo "${id[0]}"`)
+
+# declare variables, created from array
+pop1="${arr[0]}"
+sub1="${arr[1]}"
+sample_1a="${arr[2]}"
+sample_1b="${arr[3]}"
+sample_1c="${arr[4]}"
+sample_1d="${arr[5]}"
+
+# mapfile to extract second pop/subpop information and send to an array
+mapfile -s "$line2" -n 1 -t id < "${list}"
+arr=(`echo "${id[0]}"`)
+
+# declare variables, created from array
+pop2="${arr[0]}"
+sub2="${arr[1]}"
+sample_2a="${arr[2]}"
+sample_2b="${arr[3]}"
+sample_2c="${arr[4]}"
+sample_2d="${arr[5]}"
+################################
 
 ####### PATHS #######
 # genome reference file
@@ -58,10 +90,8 @@ smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
 final="mu1_38x-8"
 
 ####### PARAMETERS #######
-mu="7.77e-9"	# population mutation rate
-cut="5000"	# cutoff length for homozygosity
-pop1="${pop[2]}"	# population 1, P. mira
-pop2="${pop[4]}"	# population 2, P. kansuensis
+mu="7.77e-9"		# population mutation rate
+cut="5000"		# cutoff length for homozygosity
 
 ####################
 ### Begin script ###
@@ -69,92 +99,30 @@ pop2="${pop[4]}"	# population 2, P. kansuensis
 echo -e "begin SMC++ preparation\n get individuals"
 date
 
-# select individuals in pairwise combinations
-
-# PD-PP; pairwise dulcis-persica; subset=all; 32 individuals; 30 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PD02 --indv PD03 --indv PD04 --indv PD05 --indv PD06 \
-#--indv PD07 --indv PD08 --indv PD09 --indv PD10 --indv PD11 --indv PD12 --indv PD13 \
-#--indv PD14 --indv PD16 --indv PD17 --indv PD18 --indv PD20 --indv PD21 --indv PP02 \
-#--indv PP03 --indv PP04 --indv PP05 --indv PP06 --indv PP08 --indv PP11 --indv PP13 \
-#--indv PP14 --indv PP15 --indv PP37 --indv PP38 --indv PP39 --indv PP40 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[0]}"-"${pop[1]}"
-
-# PD-PV; pairwise dulcis-davidiana; subset=all; 24 individuals; 22 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PD02 --indv PD03 --indv PD04 --indv PD05 --indv PD06 \
-#--indv PD07 --indv PD08 --indv PD09 --indv PD10 --indv PD11 --indv PD12 --indv PD13 \
-#--indv PD14 --indv PD16 --indv PD17 --indv PD18 --indv PD20 --indv PV01 --indv PV02 \
-#--indv PV03 --indv PV04 --indv PV05 --indv PV06 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[0]}"-"${pop[3]}"
-
-# PP-PM; pairwise persica-mira; subset=all; 20 individuals; 18 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PP02 --indv PP03 --indv PP04 --indv PP05 --indv PP06 \
-#--indv PP08 --indv PP11 --indv PP13 --indv PP14 --indv PP15 --indv PP37 --indv PP38 \
-#--indv PP39 --indv PP40 --indv PM01 --indv PM02 --indv PM03 --indv PM04 --indv PM05 \
-#--indv PM06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"{pop[1]}"-"${pop[2]}"
-
-# PP-PV; pairwise persica-davidiana; subset=all; 20 individuals; 18 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PP02 --indv PP03 --indv PP04 --indv PP05 --indv PP06 \
-#--indv PP08 --indv PP11 --indv PP13 --indv PP14 --indv PP15 --indv PP37 --indv PP38 \
-#--indv PP39 --indv PP40 --indv PV01 --indv PV02 --indv PV03 --indv PV04 --indv PV05 \
-#--indv PV06 --min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[1]}"-"${pop[3]}"
-
-# PP-PS; pairwise persica-kansuensis; subset=all; 18 individuals; 18 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PP02 --indv PP03 --indv PP04 --indv PP05 --indv PP06 \
-#--indv PP08 --indv PP11 --indv PP13 --indv PP14 --indv PP15 --indv PP37 --indv PP38 \
-#--indv PP39 --indv PP40 --indv PS01 --indv PS02 --indv PS03 --indv PS04 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"{pop[1]}"-"${pop[4]}"
-
-# PP-PG; pairwise persica-ferganensis; subset=all; 18 individuals; 18 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PP02 --indv PP03 --indv PP04 --indv PP05 --indv PP06 \
-#--indv PP08 --indv PP11 --indv PP13 --indv PP14 --indv PP15 --indv PP37 --indv PP38 \
-#--indv PP39 --indv PP40 --indv PG02 --indv PG03 --indv PG04 --indv PG05 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[1]}"-"${pop[5]}"
-
-# PM-PV; pairwise mira-davidiana; subset=all; 12 individuals; 12 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PM01 --indv PM02 --indv PM03 --indv PM04 --indv PM05 \
-#--indv PM06 --indv PV01 --indv PV02 --indv PV03 --indv PV04 --indv PV05 --indv PV06 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[2]}"-"${pop[3]}"
-
-# PM-PS; pairwise miras-kansuensis; subset=all; 10  individuals; 8 CPU?
+# VCF filter for pairwise comparison
 sub="all" #subset name
-vcftools --vcf "$vcf" --indv PM01 --indv PM02 --indv PM03 --indv PM04 --indv PM05 \
---indv PM06 --indv PS01 --indv PS02 --indv PS03 --indv PS04 \
---min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[2]}"-"${pop[4]}"
-
-# PM-PG; pairwise mira-ferganensis; subset=all; 10 individuals; 8 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PM01 --indv PM02 --indv PM03 --indv PM04 --indv PM05 \
-#--indv PM06 --indv PG02 --indv PG03 --indv PG04 --indv PG05 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[2]}"-"${pop[5]}"
-
-# PS-PV; pairwise kansuensis-davidiana; subset=all; 10  individuals; 8 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --indv PV01 \
-#--indv PV02 --indv PV03 --indv PV04 --indv PV05 --indv PV06 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[4]}"-"${pop[3]}"
-
-# PS-PG; pairwise kansuensis-ferganensis; subset=all; 8 individuals; 6 CPU?
-#sub="all" #subset name
-#vcftools --vcf "$vcf" --indv PS01 --indv PS02 --indv PS03 --indv PS04 --indv PG02 \
-#--indv PG03 --indv PG04 --indv PG05 \
-#--min-alleles 2 --max-alleles 2 --recode --out "$sub"_"${pop[2]}"-"${pop[5]}"
+vcftools --vcf "$vcf" \
+--indv "$sample_1a" \
+--indv "$sample_1b" \
+--indv "$sample_1c" \
+--indv "$sample_1d" \
+--indv "$sample_2a" \
+--indv "$sample_2b" \
+--indv "$sample_2c" \
+--indv "$sample_2d" \
+--min-alleles 2 --max-alleles 2 \
+--recode \
+--out split-"$pop1"_"$sub1"-"$pop2"_"$sub2"
 
 ##### NEEDED FOR INITIAL PREP #####
-mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/"$sub"_"$pop1"-"$pop2".recode.vcf "$vcf_filt"/
+mv /home/dmvelasc/Projects/Prunus/Analysis/smcpp/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf "$vcf_filt"/
 
 
 echo -e "convert vcf file to SMC++ format file"
 date
 
-bgzip -f "$vcf_filt"/all_"$pop1"-"$pop2".recode.vcf > "$vcf_filt"/all_"$pop1".recode.vcf.gz
-tabix -fp vcf "$vcf_filt"/all_"$pop1"-"$pop2".recode.vcf.gz
+bgzip -f "$vcf_filt"/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf > "$vcf_filt"/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf.gz
+tabix -fp vcf "$vcf_filt"/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf.gz
 
 echo -e "Run for loop by chromosome as per smcpp instructions"
 date
@@ -162,16 +130,28 @@ date
 ##### NEEDED FOR INITIAL PREP #####
 # select correct configuration according to paired populations
 for i in {1..8}; do
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop1"-"$pop2".recode.vcf.gz "$smc_in"/all_"$pop1"_"$i".smc.gz scaffold_"$i" "$pop1":"$mira"
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop1"-"$pop2".recode.vcf.gz "$smc_in"/all_"$pop2"_"$i".smc.gz scaffold_"$i" "pop2":"$kansuensis"
+  smc++ vcf2smc --missing-cutoff "$cut" \
+"$vcf_filt"/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf.gz \
+"$smc_in"/split-"$pop1"_"$sub1"-"$i".smc.gz scaffold_"$i" \
+"$pop1":"$sample_1a","$sample_1b","$sample_1c","$sample_1d"
+  smc++ vcf2smc --missing-cutoff "$cut" \
+"$vcf_filt"/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf.gz \
+"$smc_in"/split-"$pop2"_"$sub2"-"$i".smc.gz scaffold_"$i" \
+"$pop2":"$sample_2a","$sample_2b","$sample_2c","$sample_2d"
+
+###########
+# SEE BELOW
+#  smc++ estimate -o "$pop1"_"$sub1" "$mu" "$smc_in"/split-"$pop1"_"$sub1"-"$i".smc.gz
+#  smc++ estimate -o "$pop2"_"$sub2" "$mu" "$smc_in"/split-"$pop2"_"$sub2"-"$i".smc.gz
+###########
 done
 
 
 echo -e "begin SMC++ analysis"
 date
 # SMC++ analysis
-smc++ estimate -o smc_analysis/"$pop1" "$mu" "$smc_in"/all_"$pop1"*.smc.gz
-smc++ estimate -o smc_analysis/"$pop2" "$mu" "$smc_in"/all_"$pop2"*.smc.gz
+smc++ estimate -o smc_analysis/"$pop1"_"$sub1" "$mu" "$smc_in"/split-"$pop1"_"$sub1"-*.smc.gz
+smc++ estimate -o smc_analysis/"$pop2"_"$sub2" "$mu" "$smc_in"/split-"$pop2"_"$sub2"-*.smc.gz
 
 #--polarization-error 0.5
 # --polarization-error: if the identity of the ancestral allele is not known,
@@ -187,14 +167,20 @@ smc++ estimate -o smc_analysis/"$pop2" "$mu" "$smc_in"/all_"$pop2"*.smc.gz
 ################## SPLIT #####################
 # substitute different individuals for different combinations
 for i in {1..8}; do
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop1"-"$pop2".recode.vcf.gz \
-"$smc_in"/all_"$pop1"-"$pop2"_"$i".smc.gz scaffold_"$i" "$pop1":"$mira" "$pop2":"$kansuensis"
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/all_"$pop1"-"$pop2".recode.vcf.gz \
-"$smc_in"/all_"$pop2"-"$pop1"_"$i".smc.gz scaffold_"$i" "$pop2":"$kansuensis" "$pop1":"$mira"
+  smc++ vcf2smc --missing-cutoff "$cut" \
+"$vcf_filt"/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf.gz \
+"$smc_in"/split_"$pop1"_"$sub1"-"$pop2"_"$sub2"-"$i".smc.gz scaffold_"$i" \
+"$pop1":"$sample_1a","$sample_1b","$sample_1c","$sample_1d" \
+"$pop2":"$sample_2a","$sample_2b","$sample_2c","$sample_2d"
+  smc++ vcf2smc --missing-cutoff "$cut" \
+"$vcf_filt"/split-"$pop1"_"$sub1"-"$pop2"_"$sub2".recode.vcf.gz \
+"$smc_in"/split_"$pop2"_"$sub2"-"$pop1"_"$sub1"-"$i".smc.gz scaffold_"$i" \
+"$pop2":"$sample_2a","$sample_2b","$sample_2c","$sample_2d" \
+"$pop1":"$sample_1a","$sample_1b","$sample_1c","$sample_1d"
 done
 
 # Run split to refine the marginal estimates
-smc++ split -o "$pop1"-"$pop2"_split/ "$pop1"/model.final.json "$pop2"/model.final.json data/*.smc.gz
+smc++ split -o split/ smc_analysis/"$pop1"_"$sub1"/model.final.json smc_analysis/"$pop2"_"$sub2"/model.final.json "$smc_in"/*.smc.gz
 smc++ plot -c joint.pdf split/model.final.json
 
 ##### posterior #####

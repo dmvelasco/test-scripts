@@ -6,7 +6,7 @@
 #SBATCH -p bigmemm
 #SBATCH -t 12:00:00
 #SBATCH -n 1
-#SBATCH -c 10
+#SBATCH -c 12
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 #SBATCH --mem=80G
@@ -45,7 +45,6 @@ mu="7.77e-9"	# population mutation rate
   # 1.38e-8 (high heterozygosity peach to interspecific cross to selfed progeny)
   # Xie et al. 2016
 cut="5000"	# cutoff length for homozygosity
-pop="PV"	# population
 
 ####################
 ### Begin script ###
@@ -127,9 +126,9 @@ for i in {0..21}; do
   date
   smc++ plot -c "$pop"_"$mu"_"$sub".pdf smc_analysis/model.final.json
   smc++ plot -g 10 "$pop"_"$mu"_"$sub"_years.pdf smc_analysis/model.final.json
-  smc++ plot --logy "$pop"_"$mu"_"$sub"_logY.pdf smc_analysis/model.final.json
+#  smc++ plot --logy "$pop"_"$mu"_"$sub"_logY.pdf smc_analysis/model.final.json
   #-g	sets generation time in years to scale x-axis, otherwise in coalescent units
-  #--logy	plots the y-axis on a log scale
+  #--logy	plots the y-axis on a log scale <- gives an error
   #-c	produces CSV-formatted table containing the data used to generate the plot
 
   # move files output files to subdirectory
