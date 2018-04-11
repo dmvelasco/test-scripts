@@ -5,7 +5,7 @@
 #SBATCH -J smcpp
 #SBATCH -p bigmemm
 #SBATCH -t 12:00:00
-#SBATCH -a 1-22%2
+#SBATCH -a 21-24%2
 #SBATCH -n 1
 #SBATCH -c 12
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
