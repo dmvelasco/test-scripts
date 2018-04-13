@@ -6,10 +6,10 @@
 #SBATCH -p bigmemh
 #SBATCH -t 4:00:00
 #SBATCH -n 1
-#SBATCH -c 10
+#SBATCH -c 12
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
-#SBATCH --mem=64G
+#SBATCH --mem=90G
 set -e
 set -u
 
@@ -25,11 +25,24 @@ module load conda3
 ### Set up the parameters ###
 #############################
 
+####### PATHS #######
+# filtered joint VCF file - dulcis test VCF file
+vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
+# smc file in $vcf_filt directory
+smc_file="smcpp_prunus_biallelic.recode.vcf.gz"
+
+####### SMC++ PARAMETERS #######
+mu="7.77e-9"	# population mutation rate
+cut="5000"	# cutoff length for homozygosity
+
 ##############################
 ##### ACQUIRE SETUP DATA #####
 ## TWO FOR SPLIT ##
 # path to sample list
 list="/home/dmvelasc/Projects/Prunus/Script/smcpp_data.txt"
+line1=1		#line number of first pop/subpop wanted
+line2=21	#line number of second pop/subpop wanted
+
 # view list to select pops/subpops, important below
 # pop	subset	region			line number(s)
 # PD	sub1-10				lines 1-10
@@ -46,10 +59,11 @@ list="/home/dmvelasc/Projects/Prunus/Script/smcpp_data.txt"
 # PS	all				line 23
 # PG	all				line 24
 
-line1=1		#line number of first pop/subpop wanted
-line2=21	#line number of second pop/subpop wanted
-
 ####### ARRAYS #######
+echo -e "Extract information from population information file"
+date
+
+echo -e "Processing population 1"
 # mapfile to extract first pop/subpop information and send to an array
 mapfile -s $(( line1-1 )) -n 1 -t id < "${list}"
 arr=(`echo "${id[0]}"`)
@@ -59,6 +73,10 @@ pop1="${arr[0]}"
 sub1="${arr[1]}"
 samples1="${arr[2]}"
 
+echo -e "Population: $pop1 ; subpopulation: $sub1 ; samples: $samples1"
+date
+
+echo -e "Processing population 2"
 # mapfile to extract second pop/subpop information and send to an array
 mapfile -s $(( line2-1 )) -n 1 -t id < "${list}"
 arr=(`echo "${id[0]}"`)
@@ -67,18 +85,10 @@ arr=(`echo "${id[0]}"`)
 pop2="${arr[0]}"
 sub2="${arr[1]}"
 samples2="${arr[2]}"
+
+echo -e "Population: $pop1 ; subpopulation: $sub1 ; samples: $samples2"
+date
 ######################
-
-####### PATHS #######
-# filtered joint VCF file - dulcis test VCF file
-vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
-# smc file in $vcf_filt directory
-smc_file="smcpp_prunus_biallelic.recode.vcf.gz"
-
-
-####### PARAMETERS #######
-mu="7.77e-9"	# population mutation rate
-cut="5000"		# cutoff length for homozygosity
 
 ####################
 ### Begin script ###
@@ -100,8 +110,11 @@ smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/"$pop2"_"$sub2"-"$pop
 "$pop2":"$samples2" "$pop1":"$samples1"
 done
 
+echo -e "SMC++: refine the marginal estimates"
+date
+
 # Refine the marginal estimates
-smc++ split -o split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/ \
+smc++ split -o smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/ \
  smc_analysis/"$pop1"_"$sub1"_"$mu"/model.final.json \
  smc_analysis/"$pop2"_"$sub2"_"$mu"/model.final.json \
  smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/*.smc.gz
@@ -150,9 +163,10 @@ smc_analysis/"$pop2"_"$sub2"_"$mu"/model.final.json
 # Plot by years
 smc++ plot -g 10 \
 smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"_years.pdf \
-smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/model.final.json \
-smc_analysis/"$pop1"_"$sub1"_"$mu"/model.final.json \
-smc_analysis/"$pop2"_"$sub2"_"$mu"/model.final.json
+smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/model.final.json
+# \
+#smc_analysis/"$pop1"_"$sub1"_"$mu"/model.final.json \
+#smc_analysis/"$pop2"_"$sub2"_"$mu"/model.final.json
 
 #-g	sets generation time in years to scale x-axis, otherwise in coalescent units
 #--logy	plots the y-axis on a log scale
