@@ -1,10 +1,11 @@
 #!/bin/bash -l
 #SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/smcpp
-#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-smcpp.txt
-#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-smcpp.txt
+#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-smcpp.txt
+#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-smcpp.txt
 #SBATCH -J smcpp
 #SBATCH -p bigmemh
-#SBATCH -t 4:00:00
+#SBATCH -t 8:00:00
+#SBATCH -a 50-62%2
 #SBATCH -n 1
 #SBATCH -c 12
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -24,6 +25,8 @@ module load conda3
 #############################
 ### Set up the parameters ###
 #############################
+x=$SLURM_ARRAY_TASK_ID
+g=$(( x-1 ))
 
 ####### PATHS #######
 # filtered joint VCF file - dulcis test VCF file
@@ -40,26 +43,23 @@ cut="5000"	# cutoff length for homozygosity
 ## TWO FOR SPLIT ##
 # path to sample list
 list="/home/dmvelasc/Projects/Prunus/Script/smcpp_data.txt"
-line1=1		#line number of first pop/subpop wanted
-line2=21	#line number of second pop/subpop wanted
+# path to subset pairs for split comparison
+pairs="/home/dmvelasc/Projects/Prunus/Script/smcpp_split.txt"
 
-# view list to select pops/subpops, important below
-# pop	subset	region			line number(s)
-# PD	sub1-10				lines 1-10
-# PD	sub1	range			line 1
-# PD	sub7	China			line 7
-# PD	sub8	C Asia			line 8
-# PD	sub10	S Europe/W Asia		line 10
-# PP	sub1-7				lines 11-17
-# PP	sub1	range			line 11
-# PP	sub3	China			line 13
-# PP	sub4	China/Korea		line 14
-# PM	sub1-3				lines 18-20
-# PV	sub1-2				lines 21-22
-# PS	all				line 23
-# PG	all				line 24
 
-####### ARRAYS #######
+####### ARRAY TO SELECT POPULATIONS FOR COMPARISON #######
+echo -e "Selecting populations for split comparison..."
+# mapfile to extract first pop/subpop information and send to an array
+mapfile -s "$g" -n 1 -t id < "${pairs}"
+lines=(`echo "${id[0]}"`)
+
+line1="${lines[3]}"	#line number of first pop/subpop wanted
+line2="${lines[7]}"	#line number of second pop/subpop wanted
+
+echo -e "Selecting populations: ${lines[0]}-${lines[1]} and ${lines[4]}-${lines[5]},\nrepresenting ${lines[2]} and ${lines[6]}, respectively."
+date
+
+####### ARRAY TO EXTRACT POPULATION & SAMPLE INFORMATION FOR SMC++ #######
 echo -e "Extract information from population information file"
 date
 
@@ -156,15 +156,15 @@ date
 # Plot by generations
 smc++ plot -c \
 smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu".pdf \
-smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/model.final.json \
-smc_analysis/"$pop1"_"$sub1"_"$mu"/model.final.json \
-smc_analysis/"$pop2"_"$sub2"_"$mu"/model.final.json
-
-# Plot by years
-smc++ plot -g 10 \
-smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"_years.pdf \
 smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/model.final.json
 # \
+#smc_analysis/"$pop1"_"$sub1"_"$mu"/model.final.json \
+#smc_analysis/"$pop2"_"$sub2"_"$mu"/model.final.json
+
+# Plot by years
+#smc++ plot -g 10 \
+#smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"_years.pdf \
+#smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/model.final.json \
 #smc_analysis/"$pop1"_"$sub1"_"$mu"/model.final.json \
 #smc_analysis/"$pop2"_"$sub2"_"$mu"/model.final.json
 

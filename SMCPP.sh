@@ -4,8 +4,8 @@
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-smcpp.txt
 #SBATCH -J smcpp
 #SBATCH -p bigmemm
-#SBATCH -t 12:00:00
-#SBATCH -a 21-24%2
+#SBATCH -t 24:00:00
+#SBATCH -a 26
 #SBATCH -n 1
 #SBATCH -c 12
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
