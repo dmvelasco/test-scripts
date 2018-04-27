@@ -3,14 +3,14 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-smcpp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-smcpp.txt
 #SBATCH -J smcpp
-#SBATCH -p bigmemh
+#SBATCH -p bigmemm
 #SBATCH -t 8:00:00
-#SBATCH -a 50-62%2
+#SBATCH -a 51,63
 #SBATCH -n 1
-#SBATCH -c 12
+#SBATCH -c 14
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
-#SBATCH --mem=90G
+#SBATCH --mem=110G
 set -e
 set -u
 
