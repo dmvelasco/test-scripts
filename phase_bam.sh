@@ -61,6 +61,9 @@ for i in {0..1}; do
   # create scratch directory for temporary file placement
   mkdir -p "$scratch"/"$acc"
 
+  #### Index BAM file
+  "$bin"/samtools index "$acc"_HCrealign.bam
+
   ##### Phase with SAMtools #####
   srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
   # out is working/default directory
