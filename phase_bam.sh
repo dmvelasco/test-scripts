@@ -68,7 +68,7 @@ for i in {0..1}; do
     echo -e "Indexed file exists, skipping to phasing."
   fi
   ##### Phase with SAMtools #####
-  srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
+####### ->  srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam ##### keep to run full script
   # out is working/default directory
 
   #### Index phased BAM files
@@ -78,7 +78,7 @@ for i in {0..1}; do
   fi
 
 
-  echo "begin CDS FASTA script"
+  echo "begin conversion to FASTA"
   date
 
   ##### Extract FASTA from each BAM with SAMtools #####
@@ -94,8 +94,8 @@ for i in {0..1}; do
     gene_id="${locus[4]}"
 
     # do for each phased bam of the sample
-    "$bin"/samtools mpileup -u -r "$gene_interval" -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call - | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc"/"$gene_id"_"$acc"_0.fa
-    "$bin"/samtools mpileup -u -r "$gene_interval" -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam | "$bin"/bcftools call - | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc"/"$gene_id"_"$acc"_1.fa
+    "$bin"/samtools mpileup -u -r "$gene_interval" -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa -o "$scratch"/"$acc"/"$gene_id"_"$acc"_0.fa
+    "$bin"/samtools mpileup -u -r "$gene_interval" -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa -o "$scratch"/"$acc"/"$gene_id"_"$acc"_1.fa
 ##    "$bin"/samtools view -u -T "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam "$gene_interval" | "$bin"/samtools fasta - > "$scratch"/"$acc"/"$gene_id"_"$acc"_0.fa
 ##    "$bin"/samtools view -u -T "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam "$gene_interval" | "$bin"/samtools fasta - > "$scratch"/"$acc"/"$gene_id"_"$acc"_1.fa
   done < "$ref"/"$gene_pos_list"
@@ -109,8 +109,8 @@ for i in {0..1}; do
     touch "$scratch"/"$acc"/"$q"_"$acc"_cds_0.fa
     touch "$scratch"/"$acc"/"$q"_"$acc"_cds_1.fa
 ##    while read r; do
-      "$bin"/samtools mpileup -u -R "$ref"/cds_intervals/"$q".intervals -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call - | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc"/"$q"_"$acc"_cds_0.fa
-      "$bin"/samtools mpileup -u -R "$ref"/cds_intervals/"$q".intervals -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam | "$bin"/bcftools call - | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc"/"$q"_"$acc"_cds_1.fa
+      "$bin"/samtools mpileup -v -R "$ref"/cds_intervals/"$q".intervals -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc"/"$q"_"$acc"_cds_0.fa
+      "$bin"/samtools mpileup -v -R "$ref"/cds_intervals/"$q".intervals -A -B -R -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam | "$bin"/bcftools consensus -f "$ref"/Prunus_persica_v1.0_scaffolds.fa - -o "$scratch"/"$acc"/"$q"_"$acc"_cds_1.fa
 ##      "$bin"/samtools view -u -T "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam "$r" | "$bin"/samtools fasta - >> "$scratch"/"$acc"/"$q"_"$acc"_cds_0.fa
 ##      "$bin"/samtools view -u -T "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam "$r" | "$bin"/samtools fasta - >> "$scratch"/"$acc"/"$q"_"$acc"_cds_1.fa
 ##    done < "$ref"/cds_intervals/"$q".intervals
