@@ -73,7 +73,7 @@ for i in {0..1}; do
   echo "Begin phasing"
   date
 
-  srun "$bin"/samtools calmd -AEur "$acc"_HCrealign.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -b "$acc"_phased - ##### keep to run full script
+  srun "$bin"/samtools calmd -AEur "$acc"_HCrealign.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased - ##### keep to run full script
   # previously srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
   # out is working/default directory
 
@@ -93,19 +93,22 @@ for i in {0..1}; do
   # phase 0
   echo -e "pile up sequences and call VCF for first phased BAM file, phased_0"
   date
-  "$bin"/samtools mpileup -uABRx -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.0.vcf
+  "$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.0.vcf
   "$bin"/bcftools index -f "$acc"_phased.0.vcf
   # phase 1
   echo -e "pile up sequences and call VCF for second phased BAM file, phased_1"
   date
-  "$bin"/samtools mpileup -uABRx -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.1.vcf
+  "$bin"/samtools mpileup -uABRxE -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.1.vcf
   "$bin"/bcftools index -f "$acc"_phased.1.vcf
 
 ##### Looks like it may be better to do this with samtools mpileup and then bcftools consensus
 
   ### Genes ###
-  echo -e "loop through list of gene positions and extract full gene sequences and cds with samtools and bcftools consensus"
+  echo -e "Create consensus FASTA for each gene region by:\n1. looping through list of gene coordinates and extracting full gene sequences, and then\n2. looping through CDS cds coordinates for each gene to create a single CDS FASTA."
   date
+###############################################################################
+# see possble solution at http://seqanswers.com/forums/showthread.php?t=50008 #
+###############################################################################
   while read p; do
     # create an array from each line
     locus=(`echo "$p"`)
@@ -113,21 +116,21 @@ for i in {0..1}; do
     gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
     gene_id="${locus[4]}"
     # extract consensus gene sequence from phase 0
-    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -o "$scratch"/"$acc"/"$gene_id"_"$acc"_0.fa
+    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -s "$acc"_phased.0.bam -o "$scratch"/"$acc"/"$gene_id"_"$acc"_0.fa
     # extract consensus gene sequence from phase 1
-    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -o "$scratch"/"$acc"/"$gene_id"_"$acc"_1.fa
+    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -s "$acc"_phased.1.bam -o "$scratch"/"$acc"/"$gene_id"_"$acc"_1.fa
   done < "$ref"/"$gene_pos_list"
 
   ##### process each CDS from list of gene IDs and raw GATK alternate reference FASTA maker
-
+  echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
   while read q; do
     touch "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa
     touch "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
     x=1
     # create phased CDS FASTA components from BAM
     while read r; do
-      "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$x"_0.fa
-      "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$x"_1.fa
+      "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -s "$acc"_phased.0.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$x"_0.fa
+      "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -s "$acc"_phased.1.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$x"_1.fa
       ((x++))
       tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$x"_0.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa
       tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$x"_1.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
