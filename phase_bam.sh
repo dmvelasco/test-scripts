@@ -98,7 +98,7 @@ for i in {0..1}; do
   # phase 1
   echo -e "pile up sequences and call VCF for second phased BAM file, phased_1"
   date
-  "$bin"/samtools mpileup -uABRxE -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.1.vcf
+  "$bin"/samtools mpileup -uARxE -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.1.vcf
   "$bin"/bcftools index -f "$acc"_phased.1.vcf
 
 ##### Looks like it may be better to do this with samtools mpileup and then bcftools consensus
