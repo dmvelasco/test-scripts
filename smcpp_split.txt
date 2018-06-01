@@ -61,3 +61,5 @@ PV	all	China	28	PS	all	Gansu	23
 PM	all	Tibet	27	PG	all	Fergana	24
 PV	all	China	28	PG	all	Fergana	24
 PM	all	Tibet	27	PV	all	China	28
+PS	all	Gansu	23	PG	all	Fergana	24
+PV	all	China	28	PG	all	Fergana	24

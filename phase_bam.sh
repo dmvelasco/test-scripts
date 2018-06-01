@@ -76,7 +76,8 @@ fi
 echo "Begin phasing"
 date
 
-srun "$bin"/samtools calmd -AEur "$acc"_sorted_markdup.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased - ##### keep to run full script
+srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_sorted_markdup.bam ##### keep to run full script
+#srun "$bin"/samtools calmd -AEur "$acc"_sorted_markdup.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased - ##### keep to run full script
 #srun "$bin"/samtools calmd -AEur "$acc"_HCrealign.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased - ##### keep to run full script
 # previously srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
 # out is working/default directory
@@ -97,12 +98,12 @@ date
 # phase 0
 echo -e "pile up sequences and call VCF for first phased BAM file, phased_0"
 date
-"$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.0.vcf
+"$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -m -O z -o "$acc"_phased.0.vcf
 "$bin"/bcftools index -f "$acc"_phased.0.vcf
 # phase 1
 echo -e "pile up sequences and call VCF for second phased BAM file, phased_1"
 date
-"$bin"/samtools mpileup -uARxE -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -c -O z -o "$acc"_phased.1.vcf
+"$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam | "$bin"/bcftools call -m -O z -o "$acc"_phased.1.vcf
 "$bin"/bcftools index -f "$acc"_phased.1.vcf
 
 ##### Looks like it may be better to do this with samtools mpileup and then bcftools consensus
