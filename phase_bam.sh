@@ -69,18 +69,20 @@ if [ ! -f "'$acc'_HCrealign.bam.bai" ]; then
   echo -e "Indexed file does not exist, indexing."
   "$bin"/samtools index "$acc"_HCrealign.bam
 else
-  echo -e "HCrealign BAM file index file exists, skipping to phasing."
+  echo -e "HCrealign BAM file index exists, skipping to phasing."
 fi
 
 ##### Phase with SAMtools #####
 echo "Begin phasing"
 date
 
-srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_sorted_markdup.bam ##### keep to run full script
-#srun "$bin"/samtools calmd -AEur "$acc"_sorted_markdup.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased - ##### keep to run full script
-#srun "$bin"/samtools calmd -AEur "$acc"_HCrealign.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased - ##### keep to run full script
-# previously srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
-# out is working/default directory
+#### keep one of thes to run full script
+#srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_sorted_markdup.bam
+#srun "$bin"/samtools calmd -AEur "$acc"_sorted_markdup.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased
+#srun "$bin"/samtools calmd -AEur "$acc"_HCrealign.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased
+# previously... retry
+srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
+# next option to run samtools view within loop to select region directly from BAM
 
 #### Index phased BAM files
 echo -e "Indexing phased BAM files"
@@ -157,4 +159,3 @@ mv /scratch/dmvelasc/"$acc"/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
 
 echo "end CDS FASTA script"
 date
-done
