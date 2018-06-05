@@ -15,7 +15,6 @@ set -e
 set -u
 
 ########## PHASE BAMs & EXTRACT FASTA for each CDS/GENE ##########
-# In a loop?
 # Part 1:
 # 3. use samtools mpileup, bcftools call, bcftools consensus
 # (initial: use samtools view and samtools fasta to extract each CDS/gene FASTA sequence,
@@ -62,7 +61,7 @@ acc="${arr[0]}"
 echo -e "$acc"
 
 # create SCRATCH DIRECTORY for temporary file placement
-mkdir -p "$scratch"/"$acc"
+mkdir -p "$scratch"/"$acc"/gene "$scratch"/"$acc"/cds
 
 #### Index BAM file
 echo -e "Check if HCrealign BAM file is indexed"
@@ -91,7 +90,7 @@ while read p; do
   # phase and output FASTA
   srun "$bin"/samtools view -h -o "$gene_id"_"$acc"_gene.bam "$acc"_HCrealign.bam "$gene_interval"
   "$bin"/samtools index "$gene_id"_"$acc"_gene.bam
-  hapHunt "$gene_id"_"$acc"_gene.bam ### is output working directory???
+  hapHunt "$gene_id"_"$acc"_gene.bam > "$scratch"/"$acc"/gene/"$gene_id"_"$acc".fasta ### output to working directory, can this be redirected?
   rm "$gene_id"_"$acc"_gene.bam "$gene_id"_"$acc"_gene.bam.bai
 done < "$ref"/"$gene_pos_list"
 
@@ -99,7 +98,7 @@ done < "$ref"/"$gene_pos_list"
 echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
 while read q; do
   # create CDS FASTA components from BAM
-  touch "$q"_bamlist.txt
+  touch "$q"_"$acc"_bamlist.txt
   while read r; do
     srun "$bin"/samtools view -o "$q"_"$r"_"$acc"_cds.bam "$acc"_HCrealign.bam "$r"
     "$bin"/samtools index "$q"_"$r"_"$acc"_cds.bam
@@ -109,7 +108,7 @@ while read q; do
   # concatenate BAM files for each CDS and perform hapHunt
   srun "$bin"/samtools cat -b "$q"_"$acc"_bamlist.txt -o "$q"_"$acc"_cds.bam
   "$bin"/samtools index "$q"_"$acc"_cds.bam
-  hapHunt "$q"_"$acc"_cds.bam ### working directory output???
+  hapHunt "$q"_"$acc"_cds.bam > "$scratch"/"$acc"/cds/"$gene_id"_"$acc".fasta
 
   # remove intermediate BAM files
   rm "$q"_*_"$acc"_cds.bam "$q"_*_"$acc"_cds.bam.bai
