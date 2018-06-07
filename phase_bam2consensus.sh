@@ -64,7 +64,7 @@ acc="${arr[0]}"
 echo -e "$acc"
 
 # create SCRATCH DIRECTORY for temporary file placement
-mkdir -p "$scratch"/"$acc"/gene "$scratch"/"$acc"/cds
+mkdir -p "$scratch"
 
 #### Index BAM file
 echo -e "Check if HCrealign BAM file is indexed"
@@ -78,13 +78,19 @@ else
 fi
 
 ### Genes ###
-echo -e "Select region of BAM file and process with hapHunt"
-echo -e "Create consensus FASTA for each gene region by:\n1. looping through list of gene coordinates and extracting full gene sequences, and then\n2. looping through CDS cds coordinates for each gene to create a single CDS FASTA."
+echo -e "Process BAM file with bam2consensus to extract consensus FASTA file by GFF3 ID"
+echo -e "Create consensus FASTA for each gene region by:\n1. splitting FASTA resulting from bam2consensus, and \n2. separating the whole gene sequences so as to not include in CDS file, and then \n3. identifying and concatenating CDS files for each gene to create a single CDS FASTA."
 date
-###############################################################################
-# see possble solution at http://seqanswers.com/forums/showthread.php?t=50008 #
-###############################################################################
-bam2consensus -g "$genes" "$acc"_HCrealign.bam
+
+# IDEAS
+# 1. Phase BAM file
+# 2. Then use bam2consensus
+#    see if can isolate each fasta by doing a while loop with each line of gff3
+#    possily also have a list of the IDs from each line to name the files
+# 3. Then concatenate for each geneID
+
+bam2consensus -g "$genes" "$acc"_HCrealign.bam > "$scratch"/"$acc"_gff3.fa
+# outputs to stdout
 
 #while read p; do
 #  # create an array from each line
@@ -122,6 +128,7 @@ bam2consensus -g "$genes" "$acc"_HCrealign.bam
 
 # move sample file directory from scratch
 #mv /scratch/dmvelasc/"$acc"/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
+mv "$scratch"/"$acc"_gff3.fa /home/dmvelasc/Projects/Prunus/Analysis/genetree/
 
 echo "end bam2consensus script"
 date
