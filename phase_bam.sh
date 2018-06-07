@@ -33,8 +33,9 @@ scratch="/scratch/dmvelasc"
 # VCF file, sample IDS are PB01, PD02, etc.
 vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/all_jointcalls.vcf.gz"
 
+# Asked for bgzip of VCF
 #bgzip -c file.vcf > file.vcf.gz
-tabix -p vcf file.vcf.gz
+#tabix -p vcf file.vcf.gz
 
 #### sample ID file
 # column 1: ID, column2: other ID/information
