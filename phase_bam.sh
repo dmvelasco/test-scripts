@@ -14,17 +14,9 @@
 set -e
 set -u
 
-########## PHASE BAMs & EXTRACT FASTA for each CDS/GENE ##########
-# In a loop?
-# Part 1:
-# 3. use samtools mpileup, bcftools call, bcftools consensus
-# (initial: use samtools view and samtools fasta to extract each CDS/gene FASTA sequence,
-# does not quite work as expected.)
-# 4. append FASTA sequence to one file with appropriate FASTA header for each
-# -------------------------------------------------
-# Part 2: (separate)
-# 1. create multi sequence alignment for each CDS/gene with mafft
-# 2. selection analysis with BUSTED
+########## EXTRACT FASTA for each CDS/GENE ##########
+# split on fasta header
+#csplit -f "$prefix"fa_ -s file.fa '/>/' {*}
 
 ### Load modules ###
 module load zlib
@@ -37,6 +29,12 @@ i=$(( x-1 ))
 bin="/home/dmvelasc/bin"				# program directory
 ref="/home/dmvelasc/Data/references/persica-SCF"	# FASTA reference directory
 scratch="/scratch/dmvelasc"
+
+# VCF file, sample IDS are PB01, PD02, etc.
+vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/all_jointcalls.vcf.gz"
+
+#bgzip -c file.vcf > file.vcf.gz
+tabix -p vcf file.vcf.gz
 
 #### sample ID file
 # column 1: ID, column2: other ID/information
@@ -76,20 +74,21 @@ fi
 echo "Begin phasing"
 date
 
-#### keep one of thes to run full script
+#### keep one of these to run full script, ONLY IF PHASING WITH SAMTOOLS FIRST
 #srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_sorted_markdup.bam
 #srun "$bin"/samtools calmd -AEur "$acc"_sorted_markdup.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased
 #srun "$bin"/samtools calmd -AEur "$acc"_HCrealign.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased
 # previously... retry
-srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
+#srun "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased "$acc"_HCrealign.bam
 # next option to run samtools view within loop to select region directly from BAM
 
+
 #### Index phased BAM files
-echo -e "Indexing phased BAM files"
-date
+#echo -e "Indexing phased BAM files"
+#date
 #if [ ! -f "'$acc'_phased.0.bam.bai" ]; then
-"$bin"/samtools index "$acc"_phased.0.bam
-"$bin"/samtools index "$acc"_phased.1.bam
+#"$bin"/samtools index "$acc"_phased.0.bam
+#"$bin"/samtools index "$acc"_phased.1.bam
 #fi
 
 
@@ -98,15 +97,15 @@ date
 
 ##### Extract FASTA from each BAM with SAMtools #####
 # phase 0
-echo -e "pile up sequences and call VCF for first phased BAM file, phased_0"
-date
-"$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -m -O z -o "$acc"_phased.0.vcf
-"$bin"/bcftools index -f "$acc"_phased.0.vcf
+#echo -e "pile up sequences and call VCF for first phased BAM file, phased_0"
+#date
+#"$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.0.bam | "$bin"/bcftools call -m -O z -o "$acc"_phased.0.vcf
+#"$bin"/bcftools index -f "$acc"_phased.0.vcf
 # phase 1
-echo -e "pile up sequences and call VCF for second phased BAM file, phased_1"
-date
-"$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam | "$bin"/bcftools call -m -O z -o "$acc"_phased.1.vcf
-"$bin"/bcftools index -f "$acc"_phased.1.vcf
+#echo -e "pile up sequences and call VCF for second phased BAM file, phased_1"
+#date
+#"$bin"/samtools mpileup -uARxE -q 30 -Q 20 -f "$ref"/Prunus_persica_v1.0_scaffolds.fa "$acc"_phased.1.bam | "$bin"/bcftools call -m -O z -o "$acc"_phased.1.vcf
+#"$bin"/bcftools index -f "$acc"_phased.1.vcf
 
 ##### Looks like it may be better to do this with samtools mpileup and then bcftools consensus
 
@@ -123,35 +122,45 @@ while read p; do
   gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
   gene_id="${locus[4]}"
   # extract consensus gene sequence from phase 0
-  "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -s "$acc"_phased.0.bam -o "$scratch"/"$acc"/"$gene_id"_"$acc"_0.fa
-  # extract consensus gene sequence from phase 1
-  "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -s "$acc"_phased.1.bam -o "$scratch"/"$acc"/"$gene_id"_"$acc"_1.fa
+  "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$vcf" -s "$acc" -o "$scratch"/"$acc"/"$gene_id"_"$acc".fa
+#  # extract consensus gene sequence from phase 0
+#  "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -s "$acc"_phased.0.bam -o "$scratch"/"$acc"/"$gene_id"_"$acc"_0.fa
+#  # extract consensus gene sequence from phase 1
+#  "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -s "$acc"_phased.1.bam -o "$scratch"/"$acc"/"$gene_id"_"$acc"_1.fa
 done < "$ref"/"$gene_pos_list"
 
 ##### process each CDS from list of gene IDs and raw GATK alternate reference FASTA maker
 echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
 while read q; do
-  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa
-  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
+  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
+#  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa
+#  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
   z=1
   # create phased CDS FASTA components from BAM
   while read r; do
-    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -s "$acc"_phased.0.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa
-    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -s "$acc"_phased.1.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa
+    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$vcf" -s "$acc" -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa
+#    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -s "$acc"_phased.0.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa
+#    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -s "$acc"_phased.1.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa
     ((z++))
-    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa
-    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
-    rm "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa
+    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
+#    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa
+#    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
+    rm "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa
+#    rm "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa
   done < "$ref"/cds_intervals/"$q".intervals
 
   # concatenate and create final CDS FASTA with basic file manipulations
-  echo ">${acc}_0" >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
-  echo $(cat "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa) | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
-##awk '{printf $0;}' "$scratch"/"$acc"/"$q"_"$acc"_cds_0.fa | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc".fa
-  echo ">${acc}_1" >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
-  echo $(cat "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa) | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
-##awk '{printf $0;}' "$scratch"/"$acc"/"$q"_"$acc"_cds_1.fa | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc".fa
-  rm "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
+  # concensus concatenation
+  echo ">${acc}" > "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
+  echo $(cat "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa) | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
+#  # phase 0
+#  echo ">${acc}_0" >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
+#  echo $(cat "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa) | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
+#  # phase 1
+#  echo ">${acc}_1" >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
+#  echo $(cat "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa) | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
+  rm "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
+#  rm "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
 done < "$ref"/"$gene_list"
 
 # move sample file directory from scratch

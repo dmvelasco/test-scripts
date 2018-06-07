@@ -6,9 +6,9 @@
 #SBATCH -p bigmemh
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
-#SBATCH -c 2
+#SBATCH -c 8
 #SBATCH -a 1
-#SBATCH --mem=16G
+#SBATCH --mem=64G
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
@@ -35,16 +35,10 @@ i=$(( x-1 ))
 
 ### Declare directories ###
 bin="/home/dmvelasc/bin"				# program directory
-ref="/home/dmvelasc/Data/references/persica-SCF"	# FASTA reference directory
-scratch="/scratch/dmvelasc"
 
 #### sample ID file
 # column 1: ID, column2: other ID/information
 list="/home/dmvelasc/Projects/Prunus/Script/sample.txt"
-
-# gene/cds intervals
-gene_list="Prunus_persica_v1.0_genes_list.gff3"
-gene_pos_list="Prunus_persica_v1.0_gene_position_list.txt"
 
 echo -e "extract sample ID from Script/sample.txt using mapfile"
 date
@@ -61,7 +55,7 @@ acc="${arr[0]}"
 echo -e "$acc"
 
 # create SCRATCH DIRECTORY for temporary file placement
-mkdir -p "$scratch"/"$acc"/gene "$scratch"/"$acc"/cds
+mkdir -p /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"_scaffolds
 
 #### Index BAM file
 echo -e "Check if HCrealign BAM file is indexed"
@@ -74,49 +68,14 @@ else
   echo -e "HCrealign BAM file index file exists, skipping to phasing."
 fi
 
-### Genes ###
-echo -e "Select region of BAM file and process with hapHunt"
-echo -e "Create consensus FASTA for each gene region by:\n1. looping through list of gene coordinates and extracting full gene sequences, and then\n2. looping through CDS cds coordinates for each gene to create a single CDS FASTA."
+echo -e "Extract FASTA for each scaffold with hapHunt"
 date
-###############################################################################
-# see possble solution at http://seqanswers.com/forums/showthread.php?t=50008 #
-###############################################################################
-while read p; do
-  # create an array from each line
-  locus=(`echo "$p"`)
-  # declare variables, created from array
-  gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
-  gene_id="${locus[4]}"
-  # phase and output FASTA
-  srun "$bin"/samtools view -h -o "$gene_id"_"$acc"_gene.bam "$acc"_HCrealign.bam "$gene_interval"
-  "$bin"/samtools index "$gene_id"_"$acc"_gene.bam
-  hapHunt "$gene_id"_"$acc"_gene.bam > "$scratch"/"$acc"/gene/"$gene_id"_"$acc".fasta ### output to working directory, can this be redirected?
-  rm "$gene_id"_"$acc"_gene.bam "$gene_id"_"$acc"_gene.bam.bai
-done < "$ref"/"$gene_pos_list"
 
-##### process each CDS from list of gene IDs
-echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
-while read q; do
-  # create CDS FASTA components from BAM
-  touch "$q"_"$acc"_bamlist.txt
-  while read r; do
-    srun "$bin"/samtools view -o "$q"_"$r"_"$acc"_cds.bam "$acc"_HCrealign.bam "$r"
-    "$bin"/samtools index "$q"_"$r"_"$acc"_cds.bam
-    echo -e ""$q"_"$r"_"$acc"_cds.bam" >> "$q"_"$acc"_bamlist.txt
-  done < "$ref"/cds_intervals/"$q".intervals
-
-  # concatenate BAM files for each CDS and perform hapHunt
-  srun "$bin"/samtools cat -b "$q"_"$acc"_bamlist.txt -o "$q"_"$acc"_cds.bam
-  "$bin"/samtools index "$q"_"$acc"_cds.bam
-  hapHunt "$q"_"$acc"_cds.bam > "$scratch"/"$acc"/cds/"$gene_id"_"$acc".fasta
-
-  # remove intermediate BAM files
-  rm "$q"_*_"$acc"_cds.bam "$q"_*_"$acc"_cds.bam.bai
-
-done < "$ref"/"$gene_list"
+hapHunt "$acc"_HCrealign.bam
+### outputs to working directory, can this be redirected? not with simple >
 
 # move sample file directory from scratch
-mv /scratch/dmvelasc/"$acc"/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
+mv /group/jrigrp3/Velasco/Prunus/BAM/*.fasta /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"_scaffolds/
 
-echo "end CDS FASTA script"
+echo "hapHunt FASTA extraction from BAM file finished"
 date
