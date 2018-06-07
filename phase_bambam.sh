@@ -6,9 +6,9 @@
 #SBATCH -p bigmemh
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
-#SBATCH -c 12
+#SBATCH -c 16
 #SBATCH -a 1
-#SBATCH --mem=96G
+#SBATCH --mem=128G
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
