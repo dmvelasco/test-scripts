@@ -39,7 +39,8 @@ ref="/home/dmvelasc/Data/references/persica-SCF"	# FASTA reference directory
 scratch="/scratch/dmvelasc"
 
 # complete gff3: genes, CDS, UTR
-genes="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_genes_sorted.gff3"
+genes="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_genes_only.gff3"
+cds="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_cds_full.gff3"
 
 #### sample ID file
 # column 1: ID, column2: other ID/information
@@ -64,7 +65,7 @@ acc="${arr[0]}"
 echo -e "$acc"
 
 # create SCRATCH DIRECTORY for temporary file placement
-mkdir -p "$scratch"
+mkdir -p "$scratch"/"$acc"_fasta
 
 #### Index BAM file
 echo -e "Check if HCrealign BAM file is indexed"
@@ -76,6 +77,12 @@ if [ ! -f "'$acc'_HCrealign.bam.bai" ]; then
 else
   echo -e "HCrealign BAM file index file exists, skipping."
 fi
+
+# Phase with SAMtools and index
+srun "$bin"/samtools calmd -AEur "$acc"_HCrealign.bam "$ref"/Prunus_persica_v1.0_scaffolds.fa | "$bin"/samtools phase -A -A -Q 20 -b "$acc"_phased
+"$bin"/samtools index "$acc"_phased.0.bam
+"$bin"/samtools index "$acc"_phased.1.bam
+
 
 ### Genes ###
 echo -e "Process BAM file with bam2consensus to extract consensus FASTA file by GFF3 ID"
@@ -89,46 +96,46 @@ date
 #    possily also have a list of the IDs from each line to name the files
 # 3. Then concatenate for each geneID
 
-bam2consensus -g "$genes" "$acc"_HCrealign.bam > "$scratch"/"$acc"_gff3.fa
-# outputs to stdout
+# Output phased consensus sequences from each phased BAM; direct to file otherwise defaults to stdout
+while read g; do
+  # Output full gene FASTA
+  grep "$g" "$genes" > gene_"$g".gff3
+  bam2consensus -g gene_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.0_genes_gff3.fa
+  bam2consensus -g gene_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.1_genes_gff3.fa
+  rm gene_"$g".gff3
 
-#while read p; do
-#  # create an array from each line
-#  locus=(`echo "$p"`)
-#  # declare variables, created from array
-#  gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
-#  gene_id="${locus[4]}"
-#  # phase and output FASTA
-#  srun "$bin"/samtools view -h -o "$gene_id"_"$acc"_gene.bam "$acc"_HCrealign.bam "$gene_interval"
-#  "$bin"/samtools index "$gene_id"_"$acc"_gene.bam
-#  hapHunt "$gene_id"_"$acc"_gene.bam > "$scratch"/"$acc"/gene/"$gene_id"_"$acc".fasta ### output to working directory, can this be redirected?
-#  rm "$gene_id"_"$acc"_gene.bam "$gene_id"_"$acc"_gene.bam.bai
-#done < "$ref"/"$gene_pos_list"
+  # Output CDS FASTA
+  grep "$g" "$cds" > cds_"$g".gff3
+  bam2consensus -g cds_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.0_cds_gff3.fa
+  bam2consensus -g cds_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.1_cds_gff3.fa
 
-##### process each CDS from list of gene IDs
-#echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
-#while read q; do
-#  # create CDS FASTA components from BAM
-#  touch "$q"_"$acc"_bamlist.txt
-#  while read r; do
-#    srun "$bin"/samtools view -o "$q"_"$r"_"$acc"_cds.bam "$acc"_HCrealign.bam "$r"
-#    "$bin"/samtools index "$q"_"$r"_"$acc"_cds.bam
-#    echo -e ""$q"_"$r"_"$acc"_cds.bam" >> "$q"_"$acc"_bamlist.txt
-#  done < "$ref"/cds_intervals/"$q".intervals
+  # Concatenate CDS FASTA files
+  # split on fasta header (phase 0)
+  #csplit -f "$g".0_cds_ -s "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.0_cds_gff3.fa '/>/' {*}
+  #numCDS=( `ls "$g".0_cds_* | wc -l` )
+  #echo ">$g_$acc_phased.0_cds" > "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.0_cds.fa
+    #for i in {1.."$numCDS"}; do
+    #  tail -n +2 "$g".0_cds_"i" >> "$scratch"/temp_cds.fa
+   #done
+  #echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.0_cds.fa
+  #rm "$g".0_cds_*
 
-#  # concatenate BAM files for each CDS and perform hapHunt
-#  srun "$bin"/samtools cat -b "$q"_"$acc"_bamlist.txt -o "$q"_"$acc"_cds.bam
-#  "$bin"/samtools index "$q"_"$acc"_cds.bam
-#  hapHunt "$q"_"$acc"_cds.bam > "$scratch"/"$acc"/cds/"$gene_id"_"$acc".fasta
-#
-#  # remove intermediate BAM files
-#  rm "$q"_*_"$acc"_cds.bam "$q"_*_"$acc"_cds.bam.bai
+  # split on fasta header (phase 1)
+  #csplit -f "$g".1_cds_ -s "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.1_cds_gff3.fa '/>/' {*}
+  #numCDS=( `ls "$g".1_cds_* | wc -l` )
+  #echo ">$g_$acc_phased.1_cds" > "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.1_cds.fa
+    #for i in {1.."$numCDS"}; do
+    #  tail -n +2 "$g".1_cds_"i" >> "$scratch"/temp_cds.fa
+    #done
+  #echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/"$g"_"$acc"_phased.1_cds.fa
+  #rm "$g".1_cds_*
 
-#done < "$ref"/"$gene_list"
+  rm cds_"$g".gff3
+done < "$gene_list"
 
-# move sample file directory from scratch
-#mv /scratch/dmvelasc/"$acc"/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
-mv "$scratch"/"$acc"_gff3.fa /home/dmvelasc/Projects/Prunus/Analysis/genetree/
+# move sample file directory from scratch, remove intermediate temporary files
+mv "$scratch"/"$acc"_fasta/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
+#rm "$scratch"/temp_cds.fa
 
 echo "end bam2consensus script"
 date
