@@ -107,20 +107,20 @@ while read g; do
 
   # Reformat full gene FASTA file
   # phase 0
-  #echo ">$g_$acc_phased.0_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_gene.fa
-  #tail -n +2 "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa  >> "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_gene.fa
-  #rm "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa
+  echo ">$g_$acc_phased.0_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_gene.fa
+  tail -n +2 "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa  >> "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_gene.fa
+  rm "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa
   # phase 1
-  #echo ">$g_$acc_phased.1_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
-  #tail -n +2 "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa  >> "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
-  #rm "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa
+  echo ">$g_$acc_phased.1_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
+  tail -n +2 "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa  >> "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
+  rm "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa
 
   rm gene_"$g".gff3 # removes temporary GFF3 file with gene interval
 
   # Output CDS FASTA
   grep "$g" "$cds" > cds_"$g".gff3
-  bam2consensus -g cds_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/cds/"$acc"_fasta/"$g"_"$acc"_phased.0_cds_gff3.fa
-  bam2consensus -g cds_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/cds/"$acc"_fasta/"$g"_"$acc"_phased.1_cds_gff3.fa
+  bam2consensus -g cds_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
+  bam2consensus -g cds_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
 
   # Concatenate CDS FASTA files
   # split on fasta header (phase 0)
