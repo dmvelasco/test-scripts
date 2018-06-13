@@ -107,11 +107,11 @@ while read g; do
 
   # Reformat full gene FASTA file
   # phase 0
-  echo ">$g_$acc_phased.0_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_gene.fa
+  echo ">${g}_${acc}_phased.0_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_gene.fa
   tail -n +2 "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa  >> "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_gene.fa
   rm "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa
   # phase 1
-  echo ">$g_$acc_phased.1_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
+  echo ">${g}_${acc}_phased.1_gene" > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
   tail -n +2 "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa  >> "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
   rm "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa
 
@@ -126,9 +126,9 @@ while read g; do
   # split on fasta header (phase 0)
   csplit -f "$g".0_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa '/>/' {*}
   numCDS=( `ls "$g".0_cds_* | wc -l` )
-  echo ">$g_$acc_phased.0_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
+  echo ">${g}_${acc}_phased.0_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
     for i in {1.."$numCDS"}; do
-      tail -n +2 "$g".0_cds_"i" >> "$scratch"/temp_cds.fa
+      tail -n +2 "$g".0_cds_"$i" >> "$scratch"/temp_cds.fa
     done
   echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
   rm "$g".0_cds_*
@@ -136,9 +136,9 @@ while read g; do
   # split on fasta header (phase 1)
   csplit -f "$g".1_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa '/>/' {*}
   numCDS=( `ls "$g".1_cds_* | wc -l` )
-  echo ">$g_$acc_phased.1_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
+  echo ">${g}_${acc}_phased.1_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
     for i in {1.."$numCDS"}; do
-      tail -n +2 "$g".1_cds_"i" >> "$scratch"/temp_cds.fa
+      tail -n +2 "$g".1_cds_"$i" >> "$scratch"/temp_cds.fa
     done
   echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
   rm "$g".1_cds_*
