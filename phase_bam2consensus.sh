@@ -127,8 +127,9 @@ while read g; do
   csplit -f "$g".0_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa '/>/' {*}
   numCDS=( `ls "$g".0_cds_* | wc -l` )
   echo ">${g}_${acc}_phased.0_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
-    for ((i=1; i<=numCDS; i++)); do
-      tail -n +2 "$g".0_cds_"$i" >> "$scratch"/temp_cds.fa
+    for i in "$g".0_cds_*; do
+      [ -f "$i" ] || break # loop breaks if no matching file
+      tail -n +2 "$i" >> "$scratch"/temp_cds.fa
     done
   echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
   rm "$g".0_cds_*
@@ -137,8 +138,9 @@ while read g; do
   csplit -f "$g".1_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa '/>/' {*}
   numCDS=( `ls "$g".1_cds_* | wc -l` )
   echo ">${g}_${acc}_phased.1_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
-    for ((i=1; i<=numCDS; i++)); do
-      tail -n +2 "$g".1_cds_"$i" >> "$scratch"/temp_cds.fa
+    for i in "$g".1_cds_*; do
+      [ -f "$i" ] || break # loop breaks if no matching file
+      tail -n +2 "$i" >> "$scratch"/temp_cds.fa
     done
   echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
   rm "$g".1_cds_*
