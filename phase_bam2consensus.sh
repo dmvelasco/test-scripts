@@ -131,7 +131,7 @@ while read g; do
       [ -f "$i" ] || break # loop breaks if no matching file
       tail -n +2 "$i" >> "$scratch"/temp_cds.fa
     done
-  echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
+  tr -d '/n' < "$scratch"/temp_cds.fa | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
   rm "$g".0_cds_* "$scratch"/temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
 
   # split on fasta header (phase 1)
@@ -142,7 +142,7 @@ while read g; do
       [ -f "$i" ] || break # loop breaks if no matching file
       tail -n +2 "$i" >> "$scratch"/temp_cds.fa
     done
-  echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
+  tr -d '/n' < "$scratch"/temp_cds.fa | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
   rm "$g".1_cds_* "$scratch"/temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
   rm cds_"$g".gff3 # removes temporary GFF3 file with cds intervals
 done < "$ref"/"$gene_list"
