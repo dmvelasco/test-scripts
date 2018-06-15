@@ -123,7 +123,7 @@ while read g; do
   bam2consensus -g cds_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
 
   # Concatenate CDS FASTA files
-  # split on fasta header (phase 0)
+  # split on fasta header (phase 0), -f is prefix, -s is file to split, '/>/' is regex on which to split, {*} is to split for all occurrences
   csplit -f "$g".0_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa '/>/' {*}
   numCDS=( `ls "$g".0_cds_* | wc -l` )
   echo ">${g}_${acc}_phased.0_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
@@ -132,7 +132,7 @@ while read g; do
       tail -n +2 "$i" >> "$scratch"/temp_cds.fa
     done
   echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
-  rm "$g".0_cds_*
+  rm "$g".0_cds_* "$scratch"/temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
 
   # split on fasta header (phase 1)
   csplit -f "$g".1_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa '/>/' {*}
@@ -143,14 +143,13 @@ while read g; do
       tail -n +2 "$i" >> "$scratch"/temp_cds.fa
     done
   echo $(cat "$scratch"/temp_cds.fa) | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
-  rm "$g".1_cds_*
-
+  rm "$g".1_cds_* "$scratch"/temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
   rm cds_"$g".gff3 # removes temporary GFF3 file with cds intervals
 done < "$ref"/"$gene_list"
 
 # move sample file directory from scratch, remove intermediate temporary files
 mv "$scratch"/"$acc"_fasta/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
-#rm "$scratch"/temp_cds.fa
+rm "$scratch"/temp_cds.fa
 
 echo "end bam2consensus script"
 date
