@@ -94,9 +94,9 @@ date
 # Output phased consensus sequences from each phased BAM; direct to file otherwise defaults to stdout
 while read g; do
   # Output full gene FASTA
-  grep "$g" "$genes" > gene_"$g".gff3
-  bam2consensus -g gene_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa
-  bam2consensus -g gene_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa
+  grep "$g" "$genes" > "$acc"_gene_"$g".gff3
+  bam2consensus -g "$acc"_gene_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.0_genes_gff3.fa
+  bam2consensus -g "$acc"_gene_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa
 
   # Reformat full gene FASTA file
   # phase 0
@@ -108,38 +108,38 @@ while read g; do
   tail -n +2 "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa  >> "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_gene.fa
   rm "$scratch"/"$acc"_fasta/gene/"$g"_"$acc"_phased.1_genes_gff3.fa
 
-  rm gene_"$g".gff3 # removes temporary GFF3 file with gene interval
+  rm "$acc"_gene_"$g".gff3 # removes temporary GFF3 file with gene interval
 
   # Output CDS FASTA
-  grep "$g" "$cds" > cds_"$g".gff3
-  bam2consensus -g cds_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
-  bam2consensus -g cds_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
+  grep "$g" "$cds" > "$acc"_cds_"$g".gff3
+  bam2consensus -g "$acc"_cds_"$g".gff3 "$acc"_phased.0.bam > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
+  bam2consensus -g "$acc"_cds_"$g".gff3 "$acc"_phased.1.bam > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
 
   # Concatenate CDS FASTA files
   # split on fasta header (phase 0), -f is prefix, -s is file to split, '/>/' is regex on which to split, {*} is to split for all occurrences
-  csplit -f "$g".0_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa '/>/' {*}
-  numCDS=( `ls "$g".0_cds_* | wc -l` )
+  csplit -f "$acc"_"$g".0_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa '/>/' {*}
+  numCDS=( `ls "$acc"_"$g".0_cds_* | wc -l` )
   echo ">${g}_${acc}_phased.0_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
-    for i in "$g".0_cds_*; do
+    for i in "$acc"_"$g".0_cds_*; do
       [ -f "$i" ] || break # loop breaks if no matching file
       tail -n +2 "$i" >> "$scratch"/"$acc"_temp_cds.fa
     done
   tr -d '\n' < "$scratch"/"$acc"_temp_cds.fa | fold -w 60 - > "$scratch"/"$acc"_folded_cds.fa
   cat "$scratch"/"$acc"_folded_cds.fa >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
-  rm "$g".0_cds_* "$scratch"/"$acc"_temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
+  rm "$acc"_"$g".0_cds_* "$scratch"/"$acc"_temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
 
   # split on fasta header (phase 1)
-  csplit -f "$g".1_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa '/>/' {*}
-  numCDS=( `ls "$g".1_cds_* | wc -l` )
+  csplit -f "$acc"_"$g".1_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa '/>/' {*}
+  numCDS=( `ls "$acc"_"$g".1_cds_* | wc -l` )
   echo ">${g}_${acc}_phased.1_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
-    for i in "$g".1_cds_*; do
+    for i in "$acc"_"$g".1_cds_*; do
       [ -f "$i" ] || break # loop breaks if no matching file
       tail -n +2 "$i" >> "$scratch"/"$acc"_temp_cds.fa
     done
   tr -d '\n' < "$scratch"/"$acc"_temp_cds.fa | fold -w 60 - > "$scratch"/"$acc"_folded_cds.fa
   cat "$scratch"/"$acc"_folded_cds.fa >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
-  rm "$g".1_cds_* "$scratch"/"$acc"_temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
-  rm cds_"$g".gff3 # removes temporary GFF3 file with cds intervals
+  rm "$acc"_"$g".1_cds_* "$scratch"/"$acc"_temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
+  rm "$acc"_cds_"$g".gff3 # removes temporary GFF3 file with cds intervals
 done < "$ref"/"$gene_list"
 
 # move sample file directory from scratch, remove intermediate temporary files
