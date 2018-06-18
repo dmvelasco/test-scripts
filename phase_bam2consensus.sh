@@ -7,7 +7,7 @@
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH -a 1
+#SBATCH -a 1-12%3
 #SBATCH --mem=16G
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
@@ -91,13 +91,6 @@ echo -e "Process BAM file with bam2consensus to extract consensus FASTA file by 
 echo -e "Create consensus FASTA for each gene region by:\n1. splitting FASTA resulting from bam2consensus, and \n2. separating the whole gene sequences so as to not include in CDS file, and then \n3. identifying and concatenating CDS files for each gene to create a single CDS FASTA."
 date
 
-# IDEAS
-# 1. Phase BAM file
-# 2. Then use bam2consensus
-#    see if can isolate each fasta by doing a while loop with each line of gff3
-#    possily also have a list of the IDs from each line to name the files
-# 3. Then concatenate for each geneID
-
 # Output phased consensus sequences from each phased BAM; direct to file otherwise defaults to stdout
 while read g; do
   # Output full gene FASTA
@@ -129,10 +122,11 @@ while read g; do
   echo ">${g}_${acc}_phased.0_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
     for i in "$g".0_cds_*; do
       [ -f "$i" ] || break # loop breaks if no matching file
-      tail -n +2 "$i" >> "$scratch"/temp_cds.fa
+      tail -n +2 "$i" >> "$scratch"/"$acc"_temp_cds.fa
     done
-  tr -d '/n' < "$scratch"/temp_cds.fa | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
-  rm "$g".0_cds_* "$scratch"/temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
+  tr -d '\n' < "$scratch"/"$acc"_temp_cds.fa | fold -w 60 - > "$scratch"/"$acc"_folded_cds.fa
+  cat "$scratch"/"$acc"_folded_cds.fa >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds.fa
+  rm "$g".0_cds_* "$scratch"/"$acc"_temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.0_cds_gff3.fa
 
   # split on fasta header (phase 1)
   csplit -f "$g".1_cds_ -s "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa '/>/' {*}
@@ -140,16 +134,17 @@ while read g; do
   echo ">${g}_${acc}_phased.1_cds" > "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
     for i in "$g".1_cds_*; do
       [ -f "$i" ] || break # loop breaks if no matching file
-      tail -n +2 "$i" >> "$scratch"/temp_cds.fa
+      tail -n +2 "$i" >> "$scratch"/"$acc"_temp_cds.fa
     done
-  tr -d '/n' < "$scratch"/temp_cds.fa | fold -w 60 - >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
-  rm "$g".1_cds_* "$scratch"/temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
+  tr -d '\n' < "$scratch"/"$acc"_temp_cds.fa | fold -w 60 - > "$scratch"/"$acc"_folded_cds.fa
+  cat "$scratch"/"$acc"_folded_cds.fa >> "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds.fa
+  rm "$g".1_cds_* "$scratch"/"$acc"_temp_cds.fa "$scratch"/"$acc"_fasta/cds/"$g"_"$acc"_phased.1_cds_gff3.fa
   rm cds_"$g".gff3 # removes temporary GFF3 file with cds intervals
 done < "$ref"/"$gene_list"
 
 # move sample file directory from scratch, remove intermediate temporary files
 mv "$scratch"/"$acc"_fasta/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
-rm "$scratch"/temp_cds.fa
+rm "$scratch"/"$acc"_folded_cds.fa
 
 echo "end bam2consensus script"
 date
