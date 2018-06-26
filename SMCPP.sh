@@ -5,7 +5,7 @@
 #SBATCH -J smcpp
 #SBATCH -p bigmemm
 #SBATCH -t 24:00:00
-#SBATCH -a 26
+#SBATCH -a 23-28%2
 #SBATCH -n 1
 #SBATCH -c 12
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -48,14 +48,12 @@ smc_in="/home/dmvelasc/Projects/Prunus/Data/smcpp_input/"
 smc_file="smcpp_prunus_biallelic.recode.vcf.gz"
 
 ####### PARAMETERS #######
-mu="7.77e-9"	# population mutation rate
+mu="1.38e-8"	# population mutation rate
   # 7.77e-9 (parent to selfed progeny)
   # 9.48e-9 (low heterozygosity peach to progeny)
   # 1.38e-8 (high heterozygosity peach to interspecific cross to selfed progeny)
   # Xie et al. 2016
 cut="5000"	# cutoff length for homozygosity
-
-set up i from slurm array ID
 
 ####################
 ### Begin script ###
@@ -115,7 +113,8 @@ echo -e "plot SMC++ results"
 date
 
 smc++ plot -c smc_analysis/"$pop"_"$sub"_"$mu"/"$pop"_"$sub"_"$mu".pdf smc_analysis/"$pop"_"$sub"_"$mu"/model.final.json
-smc++ plot -g 10 smc_analysis/"$pop"_"$sub"_"$mu"/"$pop"_"$mu"_"$sub"_years.pdf smc_analysis/"$pop"_"$sub"_"$mu"/model.final.json
+#smc++ plot -g 10 smc_analysis/"$pop"_"$sub"_"$mu"/"$pop"_"$mu"_"$sub"_years.pdf smc_analysis/"$pop"_"$sub"_"$mu"/model.final.json
+# using 10 years for generation time, only need to multiply generations by 10 to get years
 #  smc++ plot --logy "$pop"_"$mu"_"$sub"_logY.pdf smc_analysis/model.final.json
 # -g		sets generation time in years to scale x-axis, otherwise in coalescent units
 # --logy	plots the y-axis on a log scale <- gives an error

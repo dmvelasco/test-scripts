@@ -5,7 +5,7 @@
 #SBATCH -J smcpp
 #SBATCH -p bigmemm
 #SBATCH -t 8:00:00
-#SBATCH -a 64-65
+#SBATCH -a 50-65%2
 #SBATCH -n 1
 #SBATCH -c 14
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -35,7 +35,7 @@ vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
 smc_file="smcpp_prunus_biallelic.recode.vcf.gz"
 
 ####### SMC++ PARAMETERS #######
-mu="7.77e-9"	# population mutation rate
+mu="1.38e-8"	# population mutation rate
 cut="5000"	# cutoff length for homozygosity
 
 ##############################

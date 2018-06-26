@@ -7,7 +7,7 @@
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH -a 1-12%3
+#SBATCH -a 13-24%3
 #SBATCH --mem=16G
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
