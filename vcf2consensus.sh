@@ -7,17 +7,14 @@
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH -a 1
+#SBATCH -a 13
 #SBATCH --mem=16G
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
 set -u
 
-########## EXTRACT FASTA for each CDS/GENE ##########
-# split on fasta header
-#csplit -f "$prefix"fa_ -s file.fa '/>/' {*}
-
+########## Extract FASTA for each GENE/CDS interval ##########
 ### Load modules ###
 module load zlib
 
@@ -32,7 +29,7 @@ scratch="/scratch/dmvelasc"				# Scratch directory
 vcfcons="/home/dmvelasc/Software/vcftools/src/perl"	# VCFtools perl directory
 
 # VCF file, sample IDS are PB01, PD02, etc.
-vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/all_jointcalls.vcf.gz"
+vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/smcpp_prunus_biallelic.recode.vcf.gz"
 
 # Asked for bgzip of VCF
 #bgzip -c file.vcf > file.vcf.gz
@@ -64,14 +61,13 @@ mkdir -p "$scratch"/"$acc"
 echo "begin conversion to FASTA"
 date
 
-##### Looks like it may be better to do this with samtools mpileup and then bcftools consensus
-
 ### Genes ###
 echo -e "Create consensus FASTA for each gene region by:\n1. looping through list of gene coordinates and extracting full gene sequences, and then\n2. looping through CDS cds coordinates for each gene to create a single CDS FASTA."
 date
 ###############################################################################
 # see possble solution at http://seqanswers.com/forums/showthread.php?t=50008 #
 ###############################################################################
+echo -e "create consensus FASTA for gene region (5 prime UTR to 3 prime UTR)"
 while read p; do
   # create an array from each line
   locus=(`echo "$p"`)
@@ -79,28 +75,31 @@ while read p; do
   gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
   gene_id="${locus[4]}"
   # extract consensus gene sequence
-  "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus "$vcf" -s "$acc" -o "$scratch"/"$acc"/"$gene_id"_"$acc".fa
+  "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus -I -s "$acc" -o "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$vcf"
+  echo -e ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
+  tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa >> "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
+  rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
 done < "$ref"/"$gene_pos_list"
+echo -e "end processing FASTA for gene"
 
 ##### process each CDS from list of gene IDs and raw GATK alternate reference FASTA maker
 echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
 while read q; do
-  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
-  z=1
   # create CDS FASTA components from BAM
+  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
   while read r; do
-    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$vcf" -s "$acc" -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa
-    ((z++))
-    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
-    rm "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa
+    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus -I -s "$acc" -o "$scratch"/"$acc"/"$q"_"$acc"_temp.fa "$vcf"
+    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
+    rm "$scratch"/"$acc"/"$q"_"$acc"_temp.fa
   done < "$ref"/cds_intervals/"$q".intervals
 
   # concatenate and create final CDS FASTA with basic file manipulations
   # concensus concatenation
   echo ">${acc}" > "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
-  echo $(cat "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa) | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
+  tr -d '\n' < "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
   rm "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
 done < "$ref"/"$gene_list"
+echo -e "end processing FASTA for CDS"
 
 # move sample file directory from scratch
 mv /scratch/dmvelasc/"$acc"/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/

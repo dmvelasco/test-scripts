@@ -6,9 +6,10 @@
 #SBATCH -p bigmemh
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
-#SBATCH -c 16
-#SBATCH -a 1
-#SBATCH --mem=128G
+#SBATCH -c 4
+#SBATCH -a 9-10%1
+#SBATCH --mem=32G
+#SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
@@ -35,6 +36,7 @@ i=$(( x-1 ))
 
 ### Declare directories ###
 bin="/home/dmvelasc/bin"				# program directory
+ref="/home/Data/references/persica-SCF"
 
 #### sample ID file
 # column 1: ID, column2: other ID/information
@@ -68,14 +70,26 @@ else
   echo -e "HCrealign BAM file index file exists, skipping to phasing."
 fi
 
-echo -e "Extract FASTA for each scaffold with hapHunt"
+echo -e "Extract FASTA for scaffold with hapHunt"
 date
 
-hapHunt "$acc"_HCrealign.bam
-### outputs to working directory, can this be redirected? not with simple >
-
-# move sample file directory from scratch
-mv /group/jrigrp3/Velasco/Prunus/BAM/*.fasta /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"_scaffolds/
+while read z; do
+  # create an array from each line
+  scaffold=(`echo "$z"`)
+  # declare variable for first column, which is "scaffold_#"
+  chr=scaffold[0]
+  # create a new BAM file with the selected scaffold
+  srun "$bin"/samtools view -h -o "$acc"_"$chr".bam "$acc"_HCrealign.bam "$chr"
+  # index the new BAM file
+  "$bin"/samtools index "$acc"_"$chr".bam
+  # phase the selected scaffold
+  hapHunt "$acc"_"$chr".bam
+  ### outputs to working directory, not easily redirected
+  # move and rename file
+  mv "$chr".fasta /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"_"$chr".fa
+  # remove selected scaffold and associated index file
+  rm "$acc"_"$chr".bam "$acc"_"$chr".bam.bai
+done < "$ref"/scaffolds.txt
 
 echo "hapHunt FASTA extraction from BAM file finished"
 date

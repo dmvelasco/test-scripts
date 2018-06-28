@@ -142,12 +142,12 @@ while read q; do
     "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$vcf" -s "$acc" -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa
 #    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.0.vcf -s "$acc"_phased.0.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa
 #    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus "$acc"_phased.1.vcf -s "$acc"_phased.1.bam -o "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa
-    ((z++))
     tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
 #    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_0_temp.fa
 #    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_1_temp.fa
     rm "$scratch"/"$acc"/"$q"_"$acc"_temp"$z".fa
 #    rm "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_0.fa "$scratch"/"$acc"/"$q"_"$acc"_temp"$z"_1.fa
+    ((z++))
   done < "$ref"/cds_intervals/"$q".intervals
 
   # concatenate and create final CDS FASTA with basic file manipulations
