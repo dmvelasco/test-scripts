@@ -35,8 +35,9 @@ x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
 
 ### Declare directories ###
-bin="/home/dmvelasc/bin"				# program directory
-ref="/home/Data/references/persica-SCF"
+bin="/home/dmvelasc/bin"					# program directory
+ref="/home/dmvelasc/Data/references/persica-SCF"		# reference directory
+gene_pos_list="Prunus_persica_v1.0_gene_position_list.txt"	# gene position list
 
 #### sample ID file
 # column 1: ID, column2: other ID/information
@@ -70,26 +71,32 @@ else
   echo -e "HCrealign BAM file index file exists, skipping to phasing."
 fi
 
-echo -e "Extract FASTA for scaffold with hapHunt"
+mkdir -p /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"
+
+echo -e "Extract phased FASTA for each gene ID (scaffold) with hapHunt"
 date
 
 while read z; do
   # create an array from each line
-  scaffold=(`echo "$z"`)
-  # declare variable for first column, which is "scaffold_#"
-  chr=scaffold[0]
+  locus=(`echo "$z"`)
+  # declare variables, created from array
+  gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
+  gene_id="${locus[4]}"
+  chr="${locus[0]}"
   # create a new BAM file with the selected scaffold
-  srun "$bin"/samtools view -h -o "$acc"_"$chr".bam "$acc"_HCrealign.bam "$chr"
+  srun "$bin"/samtools view -h -o "$acc"_"$gene_id".bam "$acc"_HCrealign.bam "$gene_interval"
   # index the new BAM file
-  "$bin"/samtools index "$acc"_"$chr".bam
+  "$bin"/samtools index "$acc"_"$gene_id".bam
   # phase the selected scaffold
-  hapHunt "$acc"_"$chr".bam
+  hapHunt "$acc"_"$gene_id".bam
   ### outputs to working directory, not easily redirected
   # move and rename file
-  mv "$chr".fasta /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"_"$chr".fa
+  mv "$chr".fasta /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"/"$acc"_"$gene_id".fa
   # remove selected scaffold and associated index file
-  rm "$acc"_"$chr".bam "$acc"_"$chr".bam.bai
-done < "$ref"/scaffolds.txt
+  rm "$acc"_"$gene_id".bam "$acc"_"$gene_id".bam.bai
+done < "$ref"/"$gene_pos_list"
 
 echo "hapHunt FASTA extraction from BAM file finished"
 date
+
+# need to examine output and determine how to extract desired locus
