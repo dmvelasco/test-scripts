@@ -1,14 +1,14 @@
 #!/bin/bash -l
-#SBATCH -D /group/jrigrp3/Velasco/Prunus/BAM
+#SBATCH -D /group/jrigrp3/Velasco/Prunus/BAM/
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-phase-stdout.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-phase-stderr.txt
 #SBATCH -J fasta
 #SBATCH -p bigmemh
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
-#SBATCH -c 4
-#SBATCH -a 9-10%1
-#SBATCH --mem=32G
+#SBATCH -c 2
+#SBATCH -a 9
+#SBATCH --mem=16G
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
@@ -20,11 +20,7 @@ set -u
 # 3. use samtools mpileup, bcftools call, bcftools consensus
 # (initial: use samtools view and samtools fasta to extract each CDS/gene FASTA sequence,
 # does not quite work as expected.)
-# 4. append FASTA sequence to one file with appropriate FASTA header for each
-# -------------------------------------------------
-# Part 2: (separate)
-# 1. create multi sequence alignment for each CDS/gene with mafft
-# 2. selection analysis with BUSTED
+# 4. append FASTA sequence to one file with appropriate FASTA header for each sample
 
 ### Load modules ###
 module load zlib
@@ -37,6 +33,7 @@ i=$(( x-1 ))
 ### Declare directories ###
 bin="/home/dmvelasc/bin"					# program directory
 ref="/home/dmvelasc/Data/references/persica-SCF"		# reference directory
+final="/group/jrigrp3/Velasco/Prunus/fasta"			# final fasta directory
 gene_pos_list="Prunus_persica_v1.0_gene_position_list.txt"	# gene position list
 
 #### sample ID file
@@ -61,39 +58,67 @@ echo -e "$acc"
 mkdir -p /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"_scaffolds
 
 #### Index BAM file
-echo -e "Check if HCrealign BAM file is indexed"
+echo -e "Check if ${acc}_HCrealign BAM file is indexed"
 date
 
-if [ ! -f "'$acc'_HCrealign.bam.bai" ]; then
+if [ ! -f "${acc}_HCrealign.bam.bai" ]; then
   echo -e "Indexed file does not exist, indexing."
   "$bin"/samtools index "$acc"_HCrealign.bam
 else
-  echo -e "HCrealign BAM file index file exists, skipping to phasing."
+  echo -e "${acc}_HCrealign BAM file index file exists, skipping to phasing."
 fi
 
-mkdir -p /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"
+mkdir -p "$final"/fasta-phased/"$acc"
 
 echo -e "Extract phased FASTA for each gene ID (scaffold) with hapHunt"
 date
 
+##### do samtools view with header for each gene creating a new BAM file
+##### then index and try bambam hapHunt to phase
+# "$bin"/samtools view -bh -o temp_"$acc".bam "$acc"_HCrealign.bam "$gene_interval"
+
+for i in {1..27864}; do
+  mapfile -s "$i" -n 1 -t line < "${$gene_pos_list}"
+  # -s number of rows to skip | -n number of rows to read | -t (remove leading/trailing whitespace?)
+  # line is the array name (anything in this position is the array name)
+
+  # create array from line
+  locus=(`echo "${line[0]}"`)
+  # declare variables, created from array
+  gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
+  gene_id="${locus[4]}"
+  chr="${locus[0]}"
+#######  ...
+
 while read z; do
+#while IFS='\t' read -r field1 field2 field3 field4 field5; do
   # create an array from each line
   locus=(`echo "$z"`)
   # declare variables, created from array
   gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
   gene_id="${locus[4]}"
   chr="${locus[0]}"
+#  gene_interval="${field1}:${field2}-${field3}"
+#  gene_id="$field5"
+#  chr="$field1"
+#  echo -e "$gene_interval"
   # create a new BAM file with the selected scaffold
-  srun "$bin"/samtools view -h -o "$acc"_"$gene_id".bam "$acc"_HCrealign.bam "$gene_interval"
+  srun "$bin"/samtools view -bh -o "$acc"_"$gene_id".bam "$acc"_HCrealign.bam "$gene_interval"
+######## need to replace the header
   # index the new BAM file
   "$bin"/samtools index "$acc"_"$gene_id".bam
   # phase the selected scaffold
   hapHunt "$acc"_"$gene_id".bam
   ### outputs to working directory, not easily redirected
+  # select region of interest
+#  "$bin"/samtools faidx scaffold_"$chr".fasta
+#  "$bin"/samtools faidx reference.fasta region1 region2 #format like fasta_header:start-stop (e.g., lyrata:1-108)
+# "If regions are specified, the subsequences will be retrieved and printed to stdout in the FASTA format"
+
   # move and rename file
-  mv "$chr".fasta /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"/"$acc"_"$gene_id".fa
+  mv "$chr".fasta "$final"/fasta-phased/"$acc"/"$acc"_"$gene_id".fa
   # remove selected scaffold and associated index file
-  rm "$acc"_"$gene_id".bam "$acc"_"$gene_id".bam.bai
+  rm "$acc"_"$gene_id".bam "$acc"_"$gene_id".bam.bai scaffold_*.fasta
 done < "$ref"/"$gene_pos_list"
 
 echo "hapHunt FASTA extraction from BAM file finished"

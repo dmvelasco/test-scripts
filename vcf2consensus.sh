@@ -7,8 +7,9 @@
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH -a 13
+#SBATCH -a 1-5,7-10,13-28,30-34,36-37,39,41-47,49-57,62-67%2
 #SBATCH --mem=16G
+#SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
@@ -29,7 +30,7 @@ scratch="/scratch/dmvelasc"				# Scratch directory
 vcfcons="/home/dmvelasc/Software/vcftools/src/perl"	# VCFtools perl directory
 
 # VCF file, sample IDS are PB01, PD02, etc.
-vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/smcpp_prunus_biallelic.recode.vcf.gz"
+vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/all_jointcalls_biallelic.recode.vcf.gz"
 
 # Asked for bgzip of VCF
 #bgzip -c file.vcf > file.vcf.gz
@@ -102,7 +103,7 @@ done < "$ref"/"$gene_list"
 echo -e "end processing FASTA for CDS"
 
 # move sample file directory from scratch
-mv /scratch/dmvelasc/"$acc"/ /home/dmvelasc/Projects/Prunus/Analysis/genetree/
+mv /scratch/dmvelasc/"$acc"/ /group/jrigrp3/Velasco/Prunus/fasta/
 
 echo "end CDS FASTA script"
 date
