@@ -34,7 +34,7 @@ i=$(( x-1 ))
 bin="/home/dmvelasc/bin"					# program directory
 ref="/home/dmvelasc/Data/references/persica-SCF"		# reference directory
 final="/group/jrigrp3/Velasco/Prunus/fasta"			# final fasta directory
-gene_pos_list="Prunus_persica_v1.0_gene_position_list.txt"	# gene position list
+gene_pos_list="${ref}/Prunus_persica_v1.0_gene_position_list.txt"	# gene position list
 
 #### sample ID file
 # column 1: ID, column2: other ID/information
@@ -77,8 +77,9 @@ date
 ##### then index and try bambam hapHunt to phase
 # "$bin"/samtools view -bh -o temp_"$acc".bam "$acc"_HCrealign.bam "$gene_interval"
 
-for i in {1..27864}; do
-  mapfile -s "$i" -n 1 -t line < "${$gene_pos_list}"
+# total genese 27864
+for i in {1..104}; do
+  mapfile -s "$i" -n 1 -t line < "${gene_pos_list}"
   # -s number of rows to skip | -n number of rows to read | -t (remove leading/trailing whitespace?)
   # line is the array name (anything in this position is the array name)
 
@@ -88,38 +89,38 @@ for i in {1..27864}; do
   gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
   gene_id="${locus[4]}"
   chr="${locus[0]}"
-#######  ...
 
-while read z; do
+#while read z; do
 #while IFS='\t' read -r field1 field2 field3 field4 field5; do
   # create an array from each line
-  locus=(`echo "$z"`)
+#  locus=(`echo "$z"`)
   # declare variables, created from array
-  gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
-  gene_id="${locus[4]}"
-  chr="${locus[0]}"
+#  gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
+#  gene_id="${locus[4]}"
+#  chr="${locus[0]}"
 #  gene_interval="${field1}:${field2}-${field3}"
 #  gene_id="$field5"
 #  chr="$field1"
 #  echo -e "$gene_interval"
   # create a new BAM file with the selected scaffold
   srun "$bin"/samtools view -bh -o "$acc"_"$gene_id".bam "$acc"_HCrealign.bam "$gene_interval"
-######## need to replace the header
+######## need to replace the header?
   # index the new BAM file
   "$bin"/samtools index "$acc"_"$gene_id".bam
   # phase the selected scaffold
   hapHunt "$acc"_"$gene_id".bam
   ### outputs to working directory, not easily redirected
   # select region of interest
-#  "$bin"/samtools faidx scaffold_"$chr".fasta
-#  "$bin"/samtools faidx reference.fasta region1 region2 #format like fasta_header:start-stop (e.g., lyrata:1-108)
+  "$bin"/samtools faidx "$chr".fasta
+  "$bin"/samtools faidx -c "$chr".fasta -o "$acc"_"$gene_id".fa "${acc}_${gene_id}.bam.0:${locus[1]}-${locus[2]}" "${acc}_${gene_id}.bam.1:${locus[1]}-${locus[2]}" #format like fasta_header:start-stop (e.g., lyrata:1-108)
 # "If regions are specified, the subsequences will be retrieved and printed to stdout in the FASTA format"
 
   # move and rename file
-  mv "$chr".fasta "$final"/fasta-phased/"$acc"/"$acc"_"$gene_id".fa
+#  mv "$chr".fasta "$final"/fasta-phased/"$acc"/"$acc"_"$gene_id".fa
+  mv "$acc"_"$gene_id".fa "$final"/fasta-phased/"$acc"/"$acc"_"$gene_id".fa
   # remove selected scaffold and associated index file
   rm "$acc"_"$gene_id".bam "$acc"_"$gene_id".bam.bai scaffold_*.fasta
-done < "$ref"/"$gene_pos_list"
+done # < "$ref"/"$gene_pos_list"
 
 echo "hapHunt FASTA extraction from BAM file finished"
 date

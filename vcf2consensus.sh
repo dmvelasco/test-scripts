@@ -7,13 +7,15 @@
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH -a 1-5,7-10,13-28,30-34,36-37,39,41-47,49-57,62-67%2
+#SBATCH -a 65
 #SBATCH --mem=16G
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
 set -u
+
+### all arrayss: 1-5,7-10,13-28,30-34,36-37,39,41-47,49-57,62-67%2
 
 ########## Extract FASTA for each GENE/CDS interval ##########
 ### Load modules ###
