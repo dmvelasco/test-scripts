@@ -15,7 +15,8 @@
 set -e
 set -u
 
-# all arrays: 1-5,7-10,13-28,30-34,36-37,39,41-47,49-57,62-67%4
+
+
 
 ########## PHASE BAMs & EXTRACT FASTA for each CDS/GENE ##########
 # Part 1:
@@ -25,6 +26,7 @@ set -u
 # 4. append FASTA sequence to one file with appropriate FASTA header for each sample
 
 ### Load modules ###
+module load hyphy
 module load zlib
 module load bambam
 
@@ -61,6 +63,19 @@ mkdir -p /home/dmvelasc/Projects/Prunus/Data/fasta/"$acc"_scaffolds
 echo -e "Check if ${acc}_HCrealign BAM file is indexed"
 date
 
+
+
+##########################################
+############### B U S T E D ##############
+##########################################
+
+# EXAMPLE of putting BUSTED options on the command line with a batch file
+$HYPHYMP /usr/local/lib/hyphy/TemplateBatchFiles/SelectionAnalyses/BUSTED.bf "Universal" "/media/genomics/DATA1/AnophelesProteome/Transcriptome/OG1_5_3520_aln.fasta" "/media/genomics/DATA1/AnophelesProteome/Transcriptome/PAML/test.tree" "All" ""
+
+
+
+
+
 if [ ! -f "${acc}_HCrealign.bam.bai" ]; then
   echo -e "Indexed file does not exist, indexing."
   "$bin"/samtools index "$acc"_HCrealign.bam
@@ -78,7 +93,7 @@ date
 # "$bin"/samtools view -bh -o temp_"$acc".bam "$acc"_HCrealign.bam "$gene_interval"
 
 # total genese 27864
-for i in {1..27864}; do
+for i in {1..104}; do
   mapfile -s "$i" -n 1 -t line < "${gene_pos_list}"
   # -s number of rows to skip | -n number of rows to read | -t (remove leading/trailing whitespace?)
   # line is the array name (anything in this position is the array name)

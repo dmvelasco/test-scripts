@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-mafft_run.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-mafft_run.txt
 #SBATCH -J mafft
-#SBATCH -a 1-10%2
+#SBATCH -a 1,2,10,11,13,21,22,31,33,41-43,51,53,54,63,74,77,78,98,99,103-105
 #SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 1
@@ -17,6 +17,7 @@ set -u
 
 # eventual number of cycles
 # -a 1-27585%50
+# actual total is 27864
 
 #module load bio3
 
@@ -26,7 +27,7 @@ i=$(( x-1 ))
 
 # Declare directories
 dir1="/home/dmvelasc/bin"                                       # software binary directory
-dir2="/group/jrigrp3/Velasco/Prunus/fasta/fasta-test"           # fasta directory directory
+dir2="/group/jrigrp3/Velasco/Prunus/fasta/fasta-msa"            # fasta directory directory
 dir3="/home/dmvelasc/Data/references/persica-SCF"               # FASTA reference directory
 dir4="/group/jrigrp3/Velasco/Prunus/fasta/fasta-aligned"
 dir5="/scratch/dmvelasc/fasta-aligned"
