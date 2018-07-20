@@ -1,0 +1,38 @@
+
+                  SNAPP v2.5.0, 2002-2018
+                     Tree Set Analyser
+                 Designed and developed by
+Remco Bouckaert, Alexei J. Drummond, Andrew Rambaut & Marc A. Suchard
+                              
+               Department of Computer Science
+                   University of Auckland
+                  remco@cs.auckland.ac.nz
+                  alexei@cs.auckland.ac.nz
+                              
+             Institute of Evolutionary Biology
+                  University of Edinburgh
+                     a.rambaut@ed.ac.uk
+                              
+              David Geffen School of Medicine
+           University of California, Los Angeles
+                     msuchard@ucla.edu
+                              
+                Downloads, Help & Resources:
+                     http://beast2.org/
+                              
+Source code distributed under the GNU Lesser General Public License:
+             http://github.com/CompEvol/beast2
+                              
+                     BEAST developers:
+Alex Alekseyenko, Trevor Bedford, Erik Bloomquist, Joseph Heled, 
+Sebastian Hoehna, Denise Kuehnert, Philippe Lemey, Wai Lok Sibon Li, 
+Gerton Lunter, Sidney Markowitz, Vladimir Minin, Michael Defoin Platel, 
+    Oliver Pybus, Tim Vaughan, Chieh-Hsi Wu, Walter Xie
+                              
+                         Thanks to:
+    Roald Forsberg, Beth Shapiro and Korbinian Strimmer
+
+95% HPD contains 1 topologies,... out of a total of 1 topologies
+#nr coverage tree
+Tree 1: 100.0% (((PB,(PD,((PK,PR),PU))),(((PG,PP),PS),(PM,(PV,PT)))),PC)
+/Users/dmvelasco/Documents/Research/Prunus/Phylogeny/final14sept.trees	1	1
