@@ -6,9 +6,9 @@
 #SBATCH -p bigmemh
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
-#SBATCH -c 2
-#SBATCH -a 11000
-#SBATCH --mem=16G
+#SBATCH -c 1
+#SBATCH -a 1-2000%8
+#SBATCH --mem=8G
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
@@ -25,12 +25,12 @@ x=$SLURM_ARRAY_TASK_ID
 i=$(( x-1 ))
 
 ### Declare directories ###
-ref="/home/dmvelasc/Data/references/persica-SCF"			# reference directory
-gene_pos_list="${ref}/Prunus_persica_v1.0_gene_position_list.txt"	# gene position list
-FASTAdir="/group/jrigrp3/Velasco/Prunus/fasta/fasta-aligned"		# final fasta directory
-script="/home/dmvelasc/Projects/Prunus/Script"				# script directory that includes batch file and consensus tree
-busted="${script}/BUSTED"						# BUSTED batch file directory, trying to overcome misplacement of libv3 directory
-
+ref="/home/dmvelasc/Data/references/persica-SCF"				# reference directory
+gene_pos_list="${ref}/Prunus_persica_v1.0_gene_position_list.txt"		# gene position list
+FASTAdir="/group/jrigrp3/Velasco/Prunus/fasta/fasta-aligned"			# final fasta directory
+script="/home/dmvelasc/Projects/Prunus/Script"					# script directory that includes batch file and consensus tree
+busted="/share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/SelectionAnalyses"	# BUSTED batch file directory, trying to overcome misplacement of libv3 directory
+finaldir="/home/dmvelasc/Projects/Prunus/Analysis/selection"
 #### sample ID file
 # column 1: ID, column2: other ID/information
 #list="/home/dmvelasc/Projects/Prunus/Script/sample.txt"
@@ -55,7 +55,7 @@ echo -e "Starting BUSTED analysis"
 date
 
 ##### B U S T E D #####
-HYPHYMP "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "${script}/splitstree_all.tree" "All" ""
+HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_busted.txt"
 # what is output directory? working directory? what is output file?
 
 echo -e "BUSTED analysis finished"
