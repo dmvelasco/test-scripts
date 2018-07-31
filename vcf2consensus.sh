@@ -30,7 +30,7 @@ bin="/home/dmvelasc/bin"				# program directory
 ref="/home/dmvelasc/Data/references/persica-SCF"	# FASTA reference directory
 scratch="/scratch/dmvelasc"				# Scratch directory
 vcfcons="/home/dmvelasc/Software/vcftools/src/perl"	# VCFtools perl directory
-
+script="/home/dmvelasc/Projects/Prunus/Script"		# Script directory
 # VCF file, sample IDS are PB01, PD02, etc.
 vcf="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK/all_jointcalls_biallelic.recode.vcf.gz"
 
@@ -77,6 +77,7 @@ while read p; do
   # declare variables, created from array
   gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
   gene_id="${locus[4]}"
+#  strand="${locus[3]}"
   # extract consensus gene sequence
   "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus -I -s "$acc" -o "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$vcf"
   echo -e ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
@@ -101,8 +102,24 @@ while read q; do
   echo ">${acc}" > "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
   tr -d '\n' < "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
   rm "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
+
 done < "$ref"/"$gene_list"
 echo -e "end processing FASTA for CDS"
+
+while read p; do
+  # create an array from each line
+  locus=(`echo "$p"`)
+  # declare variables, created from array
+  gene_id="${locus[4]}"
+  strand="${locus[3]}"
+  # reverse complement reverse strand gene sequence
+  if [ "$strand" = '-' ]; then
+    "$script"/DNA_reverse_complement.pl < "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+    mv "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
+    "$script"/DNA_reverse_complement.pl < "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+    mv "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$acc"/"$gene_id"_"$acc"_cds.fa
+  fi
+done < "$ref"/"$gene_pos_list"
 
 # move sample file directory from scratch
 mv /scratch/dmvelasc/"$acc"/ /group/jrigrp3/Velasco/Prunus/fasta/
