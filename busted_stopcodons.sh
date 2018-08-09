@@ -59,7 +59,7 @@ date
 ##### B U S T E D #####
 #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "${script}/splitstree_all.tree" "No/Yes" "" > "$scratch"/"${gene_id}_cds_nostop.txt"
 #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "No/Yes" "" > "$scratch"/"${gene_id}_cds_nostop.txt"
-HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "No/Yes" "$scratch"/"${gene_id}_cds_aln_nostop.fa" > "$scratch"/"${gene_id}_cds_nostop.txt"
+HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "No/No" "$scratch"/"${gene_id}_cds_aln_nostop.fa" > "$scratch"/"${gene_id}_cds_nostop.txt"
 # Does not seem to have an output directory, but in the interactive command line version the last item is for the output file (/path/<filename>.fa)
 
 mv "$scratch"/"${gene_id}_cds_nostop.txt" "${finaldir}"

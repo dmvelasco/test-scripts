@@ -72,8 +72,10 @@ Loaded 'modules/shared-load-file.bf' from /share/apps/hyphy-2.3.13/lib/TemplateB
 Variable 'MARKDOWN_OUTPUT' was not initialized prior to being used
 Already loaded 'libv3/convenience/matrix.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/matrix.bf
 Already loaded 'libv3/UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Variable 'VksXKpYA.skipCodeSelectionStep' was not initialized prior to being used
+Variable 'GrAAfRYh.skipCodeSelectionStep' was not initialized prior to being used
 Row and/or column partition is empty. All the data will be used by default.
-TAG was encountered in sequence PB01 at site pattern 223. All corresponding alignment columns will be removed from subsequent analyses.
-The following sites are being omitted:{1287,1288,1289}
+TAG was encountered in sequence PD21 at site pattern 83. All corresponding alignment columns will be removed from subsequent analyses.
+TAA was encountered in sequence PD21 at site pattern 89. All corresponding alignment columns will be removed from subsequent analyses.
+TAG was encountered in sequence PB01 at site pattern 104. All corresponding alignment columns will be removed from subsequent analyses.
+The following sites are being omitted:{528,529,530,552,553,554,714,715,716}
 The input alignment must not contain stop codons in call to assert(
