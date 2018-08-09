@@ -7,7 +7,7 @@
 #SBATCH -t 20:00:00
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH -a 4001-27864%20
+#SBATCH -a 1-1000%20
 #SBATCH --mem=8G
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -16,7 +16,7 @@ set -e
 set -u
 
 # number of genes = number of arrays = 27864
-# test with 200
+# test with 1000
 
 ### Load modules ###
 module load hyphy
@@ -58,10 +58,12 @@ date
 
 ##### B U S T E D #####
 #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "${script}/splitstree_all.tree" "No/Yes" "" > "$scratch"/"${gene_id}_cds_nostop.txt"
-HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "No/Yes" "" > "$scratch"/"${gene_id}_cds_nostop.txt"
-# what is output directory? working directory? what is output file? Does redirect actually redirect?
+#HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "No/Yes" "" > "$scratch"/"${gene_id}_cds_nostop.txt"
+HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batch}"/CleanStopCodons.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "No/Yes" "$scratch"/"${gene_id}_cds_aln_nostop.fa" > "$scratch"/"${gene_id}_cds_nostop.txt"
+# Does not seem to have an output directory, but in the interactive command line version the last item is for the output file (/path/<filename>.fa)
 
-mv "$scratch"/"${gene_id}_cds_nostop.txt" /group/jrigrp3/Velasco/Prunus/fasta/fasta-stopcodon/
+mv "$scratch"/"${gene_id}_cds_nostop.txt" "${finaldir}"
+mv "$scratch"/"${gene_id}_cds_nostop.fa" /group/jrigrp3/Velasco/Prunus/fasta/fasta-stopcodon/
 
 echo -e "HyPhy stop codon removal finished"
 date
