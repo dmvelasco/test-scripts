@@ -20,7 +20,7 @@ module load zlib
 dir1="/home/dmvelasc/bin"				# software binary directory
 dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF"	# VCF directory
 dir3="/home/dmvelasc/Data/references/persica-SCF"	# FASTA reference directory
-dir4="/scratch/dmvelasc/fasta-msa"			# scratch directory
+dir4="/scratch/dmvelasc/fasta-concat"			# scratch directory
 dir5="/group/jrigrp3/Velasco/Prunus/fasta"		# directory of CDS fasta sequences
 
 # concatenate fasta sequences from each sample for each gene
@@ -33,7 +33,7 @@ list="/home/dmvelasc/Projects/Prunus/Script/sample.txt"
 ### Begin script ###
 ####################
 # create scratch directory for temporary file placement
-mkdir -p /scratch/dmvelasc/fasta-msa/
+mkdir -p /scratch/dmvelasc/fasta-concat/
 
 # create multi-sequence FASTA for each gene and CDS by concatenating FASTAs by ID from each sample
 # Three steps:
@@ -76,5 +76,5 @@ date
 # move files and remove directory
 echo "move concatenated CDS FASTA files and remove temporary fasta scratch directory"
 date
-
 mv "$dir4" "$dir5"/
+

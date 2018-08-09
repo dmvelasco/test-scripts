@@ -1,7 +1,11 @@
-#!/bin/perl
+#! /usr/bin/env perl
+use strict;
+use warnings;
 
 # Reverse compliment DNA sequence, including IUPAC ambiguity codes
-# Usage: perl DNA_reverse_complement.pl < infile.fa > outfile.fa
+# Usage: perl DNA_reverse_complement.pl infile.fa > outfile.fa
+# Modified from https://stackoverflow.com/questions/37197991/reverse-complement-of-fasta-file
+my $file_name = $ARGV[0];
 
 open (FASTA, $file_name) or die "error $!";
 
@@ -31,6 +35,6 @@ while (my $entry = <FASTA>)
 # Print the last sequence if the file didn't end with blank line    
 if (length $sequence) {
     $sequence = reverse $sequence;
-    $sequence =~ tr/ACGUacgu/UGCAugca/;
+    $sequence =~ tr/ACGTRYSWKMBDHVNacgtryswkmbdhvn/TGCAYRSWMKVHDBNtgcayrswmkvhdbn/;
     print "$sequence\n";
 }

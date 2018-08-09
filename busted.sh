@@ -7,7 +7,7 @@
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH -a 1-2000%8
+#SBATCH -a 1-2000%10
 #SBATCH --mem=8G
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -51,12 +51,12 @@ gene_id="${locus[4]}"
 mkdir -p /scratch/dmvelasc/busted
 
 #### Index BAM file
-echo -e "Starting BUSTED analysis"
+echo -e "Starting BUSTED analysis for ${gene_id}"
 date
 
 ##### B U S T E D #####
 HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_busted.txt"
-# what is output directory? working directory? what is output file?
+# what is output directory? same as input directory. what is output file? BUSTED.json
 
 echo -e "BUSTED analysis finished"
 date

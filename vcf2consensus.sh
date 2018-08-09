@@ -7,7 +7,7 @@
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH -a 65
+#SBATCH -a 1-5,7
 #SBATCH --mem=16G
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -114,10 +114,14 @@ while read p; do
   strand="${locus[3]}"
   # reverse complement reverse strand gene sequence
   if [ "$strand" = '-' ]; then
-    "$script"/DNA_reverse_complement.pl < "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
-    mv "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
-    "$script"/DNA_reverse_complement.pl < "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
-    mv "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$acc"/"$gene_id"_"$acc"_cds.fa
+    "$script"/DNA_reverse_complement.pl "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+    echo ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
+    tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
+
+    "$script"/DNA_reverse_complement.pl "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+    echo ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa
+    tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa
+    rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
   fi
 done < "$ref"/"$gene_pos_list"
 
