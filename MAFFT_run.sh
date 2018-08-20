@@ -48,8 +48,8 @@ mapfile -s "$i" -n 1 -t gene < "$dir3"/Prunus_persica_v1.0_genes_list.gff3
 echo -e "${gene[0]}"
 
 ##### STEP 2: ALIGN MULTI FASTA SEQUENCE #####
-"$dir1"/mafft --localpair --maxiterate 1000 --inputorder "$dir2"/"${gene[0]}"_gene.fa > "$dir5"/"${gene[0]}"_gene_aln.fa
+#"$dir1"/mafft --localpair --maxiterate 1000 --inputorder "$dir2"/"${gene[0]}"_gene.fa > "$dir5"/"${gene[0]}"_gene_aln.fa
 "$dir1"/mafft --localpair --maxiterate 1000 --inputorder "$dir2"/"${gene[0]}"_cds.fa > "$dir5"/"${gene[0]}"_cds_aln.fa
 
-mv "$dir5"/"${gene[0]}"_gene_aln.fa "$dir4"/
+#mv "$dir5"/"${gene[0]}"_gene_aln.fa "$dir4"/
 mv "$dir5"/"${gene[0]}"_cds_aln.fa "$dir4"/

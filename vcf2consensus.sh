@@ -72,57 +72,56 @@ date
 ###############################################################################
 echo -e "create consensus FASTA for gene region (5 prime UTR to 3 prime UTR)"
 while read p; do
+  # #   P R E P A R E   V A R I A B L E S   # #
   # create an array from each line
   locus=(`echo "$p"`)
   # declare variables, created from array
   gene_interval="${locus[0]}:${locus[1]}-${locus[2]}"
   gene_id="${locus[4]}"
-#  strand="${locus[3]}"
+  strand="${locus[3]}"
+
+  # #   E X T R A C T   G E N E   S E Q U E N C E   # #
   # extract consensus gene sequence
   "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$gene_interval" | "$bin"/bcftools consensus -I -s "$acc" -o "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$vcf"
+  # create header line in final file
   echo -e ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
-  tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa >> "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
-  rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
-done < "$ref"/"$gene_pos_list"
-echo -e "end processing FASTA for gene"
-
-##### process each CDS from list of gene IDs and raw GATK alternate reference FASTA maker
-echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
-while read q; do
-  # create CDS FASTA components from BAM
-  touch "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
-  while read r; do
-    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus -I -s "$acc" -o "$scratch"/"$acc"/"$q"_"$acc"_temp.fa "$vcf"
-    tail -n +2 "$scratch"/"$acc"/"$q"_"$acc"_temp.fa >> "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
-    rm "$scratch"/"$acc"/"$q"_"$acc"_temp.fa
-  done < "$ref"/cds_intervals/"$q".intervals
-
-  # concatenate and create final CDS FASTA with basic file manipulations
-  # concensus concatenation
-  echo ">${acc}" > "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
-  tr -d '\n' < "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$q"_"$acc"_cds.fa
-  rm "$scratch"/"$acc"/"$q"_"$acc"_cds_temp.fa
-
-done < "$ref"/"$gene_list"
-echo -e "end processing FASTA for CDS"
-
-while read p; do
-  # create an array from each line
-  locus=(`echo "$p"`)
-  # declare variables, created from array
-  gene_id="${locus[4]}"
-  strand="${locus[3]}"
-  # reverse complement reverse strand gene sequence
+  # check if sequence is on reverse strand, if so reverse complement otherwise process normally
   if [ "$strand" = '-' ]; then
-    "$script"/DNA_reverse_complement.pl "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
-    echo ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
-    tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
-
-    "$script"/DNA_reverse_complement.pl "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
-    echo ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa
-    tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa
-    rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+    "$script"/DNA_reverse_complement.pl "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_temp_revcomp.fa
+    tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp_revcomp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
+    rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp_revcomp.fa
+  else
+    tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa >> "$scratch"/"$acc"/"$gene_id"_"$acc"_gene.fa
   fi
+  rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+  echo -e "end processing FASTA for gene interval"
+
+  # #   E X T R A C T   C D S   S E Q U E N C E   # #
+  ##### process each CDS from gene IDs and raw GATK alternate reference FASTA maker
+  echo -e "create consensus FASTA for CDS regions and concatenate to single FASTA file"
+  # create and compile CDS FASTA components from BAM
+  touch "$scratch"/"$acc"/"$gene_id"_"$acc"_cds_temp.fa
+  while read r; do
+    "$bin"/samtools faidx "$ref"/Prunus_persica_v1.0_scaffolds.fa "$r" | "$bin"/bcftools consensus -I -s "$acc" -o "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$vcf"
+    tail -n +2 "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa >> "$scratch"/"$acc"/"$gene_id"_"$acc"_cds_temp.fa
+    rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+  done < "$ref"/cds_intervals/"$gene_id".intervals
+
+  # sequence and file manipulations to create final CDS FASTA
+  # create header line in final file
+  echo ">${acc}" > "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa
+  # check if sequence is on reverse strand, if so reverse complement otherwise process normally
+  # translate (tr), delete newlines
+  if [ "$strand" = '-' ]; then
+    cp "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+    tr -d '\n' < "$scratch"/"$acc"/"$gene_id"_"$acc"_cds_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa
+    "$script"/DNA_reverse_complement.pl "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa > "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa
+    rm "$scratch"/"$acc"/"$gene_id"_"$acc"_temp.fa "$scratch"/"$acc"/"$gene_id"_"$acc"_cds_temp.fa
+  else
+    tr -d '\n' < "$scratch"/"$acc"/"$gene_id"_"$acc"_cds_temp.fa | fold -w 60 - >> "$scratch"/"$acc"/"$gene_id"_"$acc"_cds.fa
+    rm "$scratch"/"$acc"/"$gene_id"_"$acc"_cds_temp.fa
+  fi
+  echo -e "end processing FASTA for CDS"
 done < "$ref"/"$gene_pos_list"
 
 # move sample file directory from scratch
