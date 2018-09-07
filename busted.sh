@@ -1,15 +1,14 @@
 #!/bin/bash -l
 #SBATCH -D /home/dmvelasc/Projects/Prunus/Script
-#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-busted-stdout.txt
-#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-busted-stderr.txt
+#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-busted-stdout.txt
+#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-busted-stderr.txt
 #SBATCH -J busted
-#SBATCH -p bigmemh
+#SBATCH -p bigmemm
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH -a 1-2000%10
 #SBATCH --mem=8G
-#SBATCH --exclude=bigmem1
+#SBATCH --exclude=bigmem1,bigmem2
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
@@ -21,13 +20,13 @@ set -u
 module load hyphy
 
 # Declare number variables
-x=$SLURM_ARRAY_TASK_ID
-i=$(( x-1 ))
+#x=$SLURM_ARRAY_TASK_ID
+#i=$(( x-1 ))
 
 ### Declare directories ###
 ref="/home/dmvelasc/Data/references/persica-SCF"				# reference directory
 gene_pos_list="${ref}/Prunus_persica_v1.0_gene_position_list.txt"		# gene position list
-FASTAdir="/group/jrigrp3/Velasco/Prunus/fasta/fasta-aligned"			# final fasta directory
+FASTAdir="/group/jrigrp3/Velasco/Prunus/fasta/fasta-alntx"			# final fasta directory
 script="/home/dmvelasc/Projects/Prunus/Script"					# script directory that includes batch file and consensus tree
 busted="/share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/SelectionAnalyses"	# BUSTED batch file directory, trying to overcome misplacement of libv3 directory
 finaldir="/home/dmvelasc/Projects/Prunus/Analysis/selection"
@@ -37,26 +36,33 @@ finaldir="/home/dmvelasc/Projects/Prunus/Analysis/selection"
 
 echo -e "extract sample ID from Script/sample.txt using mapfile"
 date
+for i in {0..39}; do
+  mapfile -s "$i" -n 1 -t line < "${gene_pos_list}"
+  # -s number of rows to skip | -n number of rows to read | -t (remove leading/trailing whitespace?)
+  # line is the array name (anything in this position is the array name)
 
-mapfile -s "$i" -n 1 -t line < "${gene_pos_list}"
-# -s number of rows to skip | -n number of rows to read | -t (remove leading/trailing whitespace?)
-# line is the array name (anything in this position is the array name)
+  # create array from line
+  locus=(`echo "${line[0]}"`)
+  # declare gene ID variable from array
+  gene_id="${locus[4]}"
 
-# create array from line
-locus=(`echo "${line[0]}"`)
-# declare gene ID variable from array
-gene_id="${locus[4]}"
+  echo -e "Starting BUSTED analysis for ${gene_id}"
+  date
 
-# create SCRATCH DIRECTORY for temporary file placement
-mkdir -p /scratch/dmvelasc/busted
-
-#### Index BAM file
-echo -e "Starting BUSTED analysis for ${gene_id}"
-date
-
-##### B U S T E D #####
-HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln.fa" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_busted.txt"
-# what is output directory? same as input directory. what is output file? BUSTED.json
+  ##### B U S T E D #####
+  if [ -s "${FASTAdir}/${gene_id}_cds.aln" ]
+  # if file exists and is not empty
+  then
+    #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_busted.txt"
+    HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/split_alltest2_final_4_rooted_busted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_busted_frgnd.txt"
+    if [ -s "${FASTAdir}/${gene_id}_cds.aln.BUSTED.json" ]
+    then
+      mv "${FASTAdir}/${gene_id}_cds.aln.BUSTED.json" "$finaldir"
+    fi
+    #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/split_alltest2_final_4_rooted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_busted_none.txt"
+    # what is output directory? same as input directory. what is output file? BUSTED.json
+  fi
+done
 
 echo -e "BUSTED analysis finished"
 date

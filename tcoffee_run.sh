@@ -3,8 +3,8 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-tcoffee_run.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-tcoffee_run.txt
 #SBATCH -J tcoffee
-#SBATCH -a 41-500%10
-#SBATCH -p bigmemh
+#SBATCH -a 14001-27864%10
+#SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 4
 #SBATCH --mem=32G

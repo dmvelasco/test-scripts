@@ -2,7 +2,7 @@
 #SBATCH -D /group/jrigrp3/Velasco/Prunus/fasta/fasta-aln
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-tcoffee_psi.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-tcoffee_psi.txt
-#SBATCH -J expresso
+#SBATCH -J psicoffee
 #SBATCH -a 2,5,6,14,23,28,29,31,34,35%2
 #SBATCH -p bigmemh
 #SBATCH -n 1
