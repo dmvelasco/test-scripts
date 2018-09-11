@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH -D /home/dmvelasc/Projects/Prunus/Script
+#SBATCH -D /home/dmvelasc/Projects/Prunus/Analysis/selection
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-busted-stdout.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-busted-stderr.txt
 #SBATCH -J busted

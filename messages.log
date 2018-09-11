@@ -1,79 +1,10 @@
 
-Loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Loaded 'libv3/UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Loaded 'IOFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/IOFunctions.bf
-Already loaded 'libv3/UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Loaded 'convenience/regexp.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/regexp.bf
-Already loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Already loaded 'libv3/IOFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/IOFunctions.bf
-Loaded 'libv3/tasks/estimators.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/tasks/estimators.bf
-Loaded '../models/model_functions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/model_functions.bf
-Loaded 'DNA.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/DNA.bf
-Loaded 'frequencies.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/frequencies.bf
-Already loaded '../all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Loaded 'parameters.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/parameters.bf
-Loaded 'GrabBag' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/Utility/GrabBag.bf
-Overwritten previously defined function:'_sortStringsAux'
-Already loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Already loaded '../UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Already loaded 'model_functions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/model_functions.bf
-Already loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Already loaded 'parameters.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/parameters.bf
-Already loaded 'frequencies.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/frequencies.bf
-Already loaded '../UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Already loaded '../convenience/regexp.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/regexp.bf
-Loaded '../models/DNA/GTR.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/DNA/GTR.bf
-Already loaded '../DNA.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/DNA.bf
-Already loaded '../parameters.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/parameters.bf
-Already loaded '../frequencies.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/frequencies.bf
-Already loaded '../../UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Already loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Already loaded '../convenience/regexp.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/regexp.bf
-Already loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Loaded 'libv3/tasks/alignments.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/tasks/alignments.bf
-Already loaded '../IOFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/IOFunctions.bf
-Already loaded '../all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Loaded 'libv3/models/codon.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/codon.bf
-Loaded '../tasks/genetic_code.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/tasks/genetic_code.bf
-Loaded 'libv3/convenience/matrix.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/matrix.bf
-Already loaded 'libv3/UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Already loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Already loaded '../UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Loaded 'libv3/tasks/trees.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/tasks/trees.bf
-Already loaded '../IOFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/IOFunctions.bf
-Already loaded '../all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Already loaded '../convenience/regexp.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/regexp.bf
-Already loaded '../UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Loaded 'TreeTools' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/TreeTools.ibf
-Already loaded 'libv3/tasks/genetic_code.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/tasks/genetic_code.bf
-Loaded 'modules/io_functions.ibf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/SelectionAnalyses/modules/io_functions.ibf
-Already loaded 'libv3/UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Already loaded 'libv3/IOFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/IOFunctions.bf
-Already loaded 'libv3/convenience/regexp.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/regexp.bf
-Already loaded 'libv3/all-terms.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/all-terms.bf
-Loaded 'modules/selection_lib.ibf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/SelectionAnalyses/modules/selection_lib.ibf
-Loaded 'libv3/models/codon/BS_REL.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/codon/BS_REL.bf
-Already loaded '../codon.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/codon.bf
-Already loaded '../DNA.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/DNA.bf
-Already loaded '../parameters.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/parameters.bf
-Already loaded '../frequencies.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/frequencies.bf
-Already loaded '../../UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Loaded 'MG_REV.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/codon/MG_REV.bf
-Already loaded '../codon.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/codon.bf
-Already loaded '../DNA.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/DNA.bf
-Already loaded '../parameters.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/parameters.bf
-Already loaded '../frequencies.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/models/frequencies.bf
-Already loaded '../../UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Loaded '../../convenience/math.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/math.bf
-Already loaded 'libv3/UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Already loaded 'libv3/convenience/math.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/math.bf
-Variable 'NORMALIZE_SEQUENCE_NAMES' was not initialized prior to being used
-Loaded 'modules/shared-load-file.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/SelectionAnalyses/modules/shared-load-file.bf
-Variable 'MARKDOWN_OUTPUT' was not initialized prior to being used
-Already loaded 'libv3/convenience/matrix.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/convenience/matrix.bf
-Already loaded 'libv3/UtilityFunctions.bf' from /share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/libv3/UtilityFunctions.bf
-Variable 'ToXbfMqr.skipCodeSelectionStep' was not initialized prior to being used
-Row and/or column partition is empty. All the data will be used by default.
-TAG was encountered in sequence PM02 at site pattern 40. All corresponding alignment columns will be removed from subsequent analyses.
-The following sites are being omitted:{123,124,125}
-The input alignment must not contain stop codons in call to assert(
+Variable 'onlyFilterSequenceNames' was not initialized prior to being used
+Loaded 'libv3/convenience/matrix.bf' from /usr/local/lib/hyphy/TemplateBatchFiles/libv3/convenience/matrix.bf
+Loaded 'libv3/UtilityFunctions.bf' from /usr/local/lib/hyphy/TemplateBatchFiles/libv3/UtilityFunctions.bf
+Loaded 'IOFunctions.bf' from /usr/local/lib/hyphy/TemplateBatchFiles/libv3/IOFunctions.bf
+Already loaded 'libv3/UtilityFunctions.bf' from /usr/local/lib/hyphy/TemplateBatchFiles/libv3/UtilityFunctions.bf
+Loaded 'convenience/regexp.bf' from /usr/local/lib/hyphy/TemplateBatchFiles/libv3/convenience/regexp.bf
+Loaded 'libv3/all-terms.bf' from /usr/local/lib/hyphy/TemplateBatchFiles/libv3/all-terms.bf
+Variable 'skipCodeSelectionStep' was not initialized prior to being used
+emptyString File Encountered By ReadDataSet.
