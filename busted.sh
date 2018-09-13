@@ -26,7 +26,7 @@ module load hyphy
 ### Declare directories ###
 ref="/home/dmvelasc/Data/references/persica-SCF"				# reference directory
 gene_pos_list="${ref}/Prunus_persica_v1.0_gene_position_list.txt"		# gene position list
-FASTAdir="/group/jrigrp3/Velasco/Prunus/fasta/fasta-alntx"			# final fasta directory
+FASTAdir="/group/jrigrp3/Velasco/Prunus/fasta/fasta-nostop"			# final fasta directory
 script="/home/dmvelasc/Projects/Prunus/Script"					# script directory that includes batch file and consensus tree
 busted="/share/apps/hyphy-2.3.13/lib/TemplateBatchFiles/SelectionAnalyses"	# BUSTED batch file directory, trying to overcome misplacement of libv3 directory
 finaldir="/home/dmvelasc/Projects/Prunus/Analysis/selection"
@@ -50,14 +50,14 @@ for i in {0..39}; do
   date
 
   ##### B U S T E D #####
-  if [ -s "${FASTAdir}/${gene_id}_cds.aln" ]
+  if [ -s "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" ]
   # if file exists and is not empty
   then
-    #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_busted.txt"
-    HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/split_alltest2_final_4_rooted_busted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_busted_frgnd.txt"
-    if [ -s "${FASTAdir}/${gene_id}_cds.aln.BUSTED.json" ]
+    #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_busted.txt"
+    HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" "${script}/split_alltest2_final_4_rooted_busted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_busted_frgnd.txt"
+    if [ -s "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta.BUSTED.json" ]
     then
-      mv "${FASTAdir}/${gene_id}_cds.aln.BUSTED.json" "$finaldir"
+      mv "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta.BUSTED.json" "$finaldir"
     fi
     #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/split_alltest2_final_4_rooted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_busted_none.txt"
     # what is output directory? same as input directory. what is output file? BUSTED.json
