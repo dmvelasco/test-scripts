@@ -3,19 +3,16 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-busted-stdout.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-busted-stderr.txt
 #SBATCH -J busted
-#SBATCH -p bigmemm
-#SBATCH -a 1-40%1
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH --mem=8G
-#SBATCH --exclude=bigmem1,bigmem2
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e
 set -u
 
 # number of genes = number of arrays = 27864
+# --exclude=bigmem1,bigmem2
 
 ### Load modules ###
 module load hyphy
@@ -57,7 +54,6 @@ then
   #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${busted}"/BUSTED.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/split_alltest2_final_4_rooted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_busted_none.txt"
   # what is output directory? same as input directory. what is output file? BUSTED.json
 fi
-done
 
 echo -e "BUSTED analysis finished"
 date

@@ -3,11 +3,11 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-macse2.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-macse2.txt
 #SBATCH -J macse2
-#SBATCH -a 41-4000%10
+#SBATCH -a 4001-27864%20
 #SBATCH -p bigmemm
 #SBATCH -n 1
-#SBATCH -c 4
-#SBATCH --mem=32G
+#SBATCH -c 2
+#SBATCH --mem=16G
 #SBATCH -t 2-00:00:00
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -49,11 +49,11 @@ date
 
 #### STEP 2: ALIGN MULTI-SEQUENCE DNA FASTA
 # sequence alignment of nucleotides and translated amino acid sequences
-java -Xmx30G -jar "$macse" -prog alignSequences -seq "$dna_dir"/"${gene[0]}"_cds.fa -out_NT "$dna_aln"/"${gene[0]}"_cds_aln.fasta -out_AA "$pep_dir"/"${gene[0]}"_cds_pep_aln.fasta
+java -Xmx16G -jar "$macse" -prog alignSequences -seq "$dna_dir"/"${gene[0]}"_cds.fa -out_NT "$dna_aln"/"${gene[0]}"_cds_aln.fasta -out_AA "$pep_dir"/"${gene[0]}"_cds_pep_aln.fasta
 
 #### STEP 3: EXPORT NUCLEOTIDE ALIGNMENT FOR BUSTED
 # modify alignment to insert gaps at frameshifts and stop codons for use with HyPhy's BUSTED
-java -Xmx30G -jar "$macse" -prog exportAlignment -align "$dna_aln"/"${gene[0]}"_cds_aln.fasta -charForRemainingFS - -codonForExternalFS --- -codonForFinalStop --- -codonForInternalFS --- -codonForInternalStop --- -out_NT "$dna_aln_final"/"${gene[0]}"_cds_aln_nostop.fasta -out_stat_per_site "$dna_aln_final"/"${gene[0]}"_cds_aln_stats.csv
+java -Xmx16G -jar "$macse" -prog exportAlignment -align "$dna_aln"/"${gene[0]}"_cds_aln.fasta -charForRemainingFS - -codonForExternalFS --- -codonForFinalStop --- -codonForInternalFS --- -codonForInternalStop --- -out_NT "$dna_aln_final"/"${gene[0]}"_cds_aln_nostop.fasta -out_stat_per_site "$dna_aln_final"/"${gene[0]}"_cds_aln_stats.csv
 
 echo -e "end MACSE v2 alignment and export for CDS sequence ${gene[0]}"
 date
