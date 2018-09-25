@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-macse2.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-macse2.txt
 #SBATCH -J macse2
-#SBATCH -a 4001-27864%20
+#SBATCH -a 22394
 #SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 2

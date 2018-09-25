@@ -5,7 +5,7 @@
 #SBATCH -J busted
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
-#SBATCH -c 1
+#SBATCH -c 2
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 set -e

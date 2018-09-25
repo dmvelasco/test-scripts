@@ -12,24 +12,20 @@ set -e
 set -u
 
 # number of genes = number of arrays = 27864
-# --exclude=bigmem1,bigmem2
-
-### Load modules ###
-module load hyphy
-
-# Declare number variables
-x=$SLURM_ARRAY_TASK_ID
-i=$(( x-1 ))
 
 script="/home/dmvelasc/Projects/Prunus/Script/busted_batch.sh"
 
-med
-c8-[62,63,65-77,86,88-96]
-c9-[65,67-70,72-77,86-97]
-c10-[64-77,86-97]
-c11-[71-77,86-97]
+#med
+#c8-[62,63,65-77,86,88-96]
+#c9-[65,67-70,72-77,86-97]
+#c10-[64-77,86-97]
+#c11-[71-77,86-97]
 
-bigmemm
-bigmem[1-8,10]
-for i in {}
-sbatch -a X-Y%1 -w node "$script"
+#bigmemm
+#bigmem[1-8,10]
+
+j=250
+
+for i in {9111..20110.."$j"}; do
+  sbatch -a "$i"-"$(( i+j ))"%1 -p med "$script"
+done
