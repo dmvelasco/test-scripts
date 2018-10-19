@@ -3,12 +3,12 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-macse2.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-macse2.txt
 #SBATCH -J macse2
-#SBATCH -a 22394
+#SBATCH -a 14427
 #SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 2
 #SBATCH --mem=16G
-#SBATCH -t 2-00:00:00
+#SBATCH -t 8-00:00:00
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
