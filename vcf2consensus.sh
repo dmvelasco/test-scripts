@@ -1,13 +1,13 @@
 #!/bin/bash -l
-#SBATCH -D /group/jrigrp3/Velasco/Prunus/BAM
+#SBATCH -D /home/dmvelasc//Projects/Prunus/Data/fasta
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-phase-stdout.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-phase-stderr.txt
 #SBATCH -J fasta
-#SBATCH -p bigmemh
+#SBATCH -p bigmemm
 #SBATCH -t 8-00:00:00
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH -a 1-5,7
+#SBATCH -a 1-67%14
 #SBATCH --mem=16G
 #SBATCH --exclude=bigmem1
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
@@ -125,7 +125,7 @@ while read p; do
 done < "$ref"/"$gene_pos_list"
 
 # move sample file directory from scratch
-mv /scratch/dmvelasc/"$acc"/ /group/jrigrp3/Velasco/Prunus/fasta/
+mv /scratch/dmvelasc/"$acc"/ /home/dmvelasc//Projects/Prunus/Data/fasta/
 
 echo "end CDS FASTA script"
 date

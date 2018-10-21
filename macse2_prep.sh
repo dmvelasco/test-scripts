@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -D /group/jrigrp3/Velasco/Prunus/fasta/
-#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-mafft_prep.txt
-#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-mafft_prep.txt
+#SBATCH -D /home/dmvelasc/Projects/Prunus/Data/fasta/
+#SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-macse2_prep.txt
+#SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-macse2_prep.txt
 #SBATCH -J fastacat
-#SBATCH -p bigmemh
+#SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 2
 #SBATCH -t 2-00:00:00
@@ -21,7 +21,7 @@ dir1="/home/dmvelasc/bin"				# software binary directory
 dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF"	# VCF directory
 dir3="/home/dmvelasc/Data/references/persica-SCF"	# FASTA reference directory
 dir4="/scratch/dmvelasc/fasta-concat"			# scratch directory
-dir5="/group/jrigrp3/Velasco/Prunus/fasta"		# directory of CDS fasta sequences
+dir5="/home/dmvelasc/Projects/Prunus/Data/fasta"	# directory of CDS fasta sequences
 
 # concatenate fasta sequences from each sample for each gene
 # output multi-sequence fasta for use in MAFFT multi-sequence alignment program
