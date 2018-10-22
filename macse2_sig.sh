@@ -3,7 +3,7 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-macse2.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-macse2.txt
 #SBATCH -J macse2
-#SBATCH -a 14427
+#SBATCH -a 1-4736%15
 #SBATCH -p bigmemm
 #SBATCH -n 1
 #SBATCH -c 2
@@ -27,7 +27,7 @@ i=$(( x-1 ))
 
 # Declare directories
 macse="/home/dmvelasc/Software/macse2/macse_v2.01.jar"			# macsev2 program
-ref="/home/dmvelasc/Data/references/persica-SCF"			# reference directory
+sel="/home/dmvelasc//Projects/Prunus/Analysis/selection"		# selection directory with list of significant genes
 scratch="/scratch/dmvelasc/fasta-pep"					# scratch directory
 dna_dir="/home/dmvelasc/Projects/Prunus/Data/fasta/fasta-concat"	# directory of CDS fasta dna sequences
 dna_aln="/home/dmvelasc/Projects/Prunus/Data/fasta/fasta-macse2"	# directory of CDS aligned fasta backtranslated dna sequences
@@ -43,8 +43,9 @@ pep_dir="/home/dmvelasc/Projects/Prunus/Data/fasta/fasta-pep"		# amino acid alig
 # outputs both alignments
 
 #### STEP 1: CAPTURE GENE ID
-mapfile -s "$i" -n 1 -t gene < "$ref"/Prunus_persica_v1.0_genes_list.gff3
-echo -e "begin MACSE v2 alignment and export for CDS sequence ${gene[0]}"
+mapfile -s "$i" -n 1 -t gene_id < "$sel"/busted_p-values.txt
+gene=( `echo "${gene_id[0]}"` )
+echo -e "begin MACSE v2 redo alignment and export for significant CDS sequence ${gene[0]}"
 date
 
 #### STEP 2: ALIGN MULTI-SEQUENCE DNA FASTA
