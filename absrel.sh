@@ -48,13 +48,14 @@ date
 if [ -s "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" ]
 # if file exists and is not empty
 then
-  #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batchdir}"/aBSREL.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_absrel.txt"
-  HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batchdir}"/aBSREL.bf "Universal" "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" "${script}/split_alltest2_final_4_rooted_busted.nwk" "All" "" "${finaldir}/${gene_id}_cds_absrel.out" > "${finaldir}/${gene_id}_cds_absrel.txt"
+  #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batchdir}"/aBSREL.bf "Universal" "Yes" "No" "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" "${script}/splitstree_all.tree" "All" "" > "$finaldir"/"${gene_id}_cds_absrel.txt"
+#  HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batchdir}"/aBSREL.bf "Universal" "Yes" "No" "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" "${script}/split_alltest2_final_4_rooted_busted.nwk" "All" "" "${finaldir}/${gene_id}_cds_absrel.out" > "${finaldir}/${gene_id}_cds_absrel.txt"
+  HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batchdir}"/aBSREL.bf "Universal" "Yes" "No" "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta" "${script}/split_alltest2_final_4_rooted.nwk" "All" "" "${finaldir}/${gene_id}_cds_absrel.out" > "${finaldir}/${gene_id}_cds_absrel.txt"
 #  if [ -s "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta.BUSTED.json" ]
 #  then
 #    mv "${FASTAdir}/${gene_id}_cds_aln_nostop.fasta.BUSTED.json" "$finaldir"
 #  fi
-  #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batchdir}"/aBSREL.bf "Universal" "${FASTAdir}/${gene_id}_cds.aln" "${script}/split_alltest2_final_4_rooted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_absrel_none.txt"
+  #HYPHYMP LIBPATH=/share/apps/hyphy-2.3.13/lib/ "${batchdir}"/aBSREL.bf "Universal" "Yes" "No" "${FASTAdir}/${gene_id}_cds.aln" "${script}/split_alltest2_final_4_rooted.nwk" "All" "" > "$finaldir"/"${gene_id}_cds_absrel_none.txt"
   # what is output directory? same as input directory. what is output file? BUSTED.json
 fi
 
