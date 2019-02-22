@@ -29,7 +29,10 @@ module load tabix
 #  E N V I R O N M E N T  #
 ###########################
 # Activate python environment with SMC++
+# set +u and -u is a work around for an unbound variable error in the activate script
+set +u
 source /home/dmvelasc/.virtualenvs/smcpp/bin/activate
+set -u
 
 #######################
 #  V A R I A B L E S  #
@@ -95,22 +98,22 @@ date
 # convert files from VCF to SMC format
 # *.smc.gz files for each chromosome are the SMC++ output file
 for i in {1..8}; do
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "$pop":"$samples"
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
   smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
 done
 
-mkdir -p smc_analysis/"${mu}"
+mkdir -p smc_analysis/"${mu}"/"${pop}_${sub}"
 
 echo -e "begin SMC++ analysis"
 date
 
 ##### SMC++ CROSS VALIDATION ANALYSIS #####
 # model.final.json and iterations are outputs
-smc++ cv --cores 24 -o smc_analysis/"${mu}"/ --base "${pop}_${sub}" --spline pchip "$mu" "$smc_in"/"${pop}_${sub}"-*.smc.gz
+smc++ cv --cores 24 -o smc_analysis/"${mu}"/"${pop}_${sub}"/ --spline pchip "$mu" "$smc_in"/"${pop}_${sub}-"*.smc.gz
 
 ##### FINAL GRAPHICAL OUTPUT #####
 echo -e "plot SMC++ results"
 date
 
-smc++ plot -c smc_analysis/"$mu"/"${pop}_${sub}_${mu}".pdf smc_analysis/"${mu}"/"${pop}_${sub}".final.json
+smc++ plot -c smc_analysis/"$mu"/"${pop}_${sub}".pdf smc_analysis/"${mu}"/"${pop}_${sub}"/model.final.json
 # -c		produces CSV-formatted table containing the data used to generate the plot
