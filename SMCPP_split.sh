@@ -3,11 +3,11 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-smcpp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-smcpp.txt
 #SBATCH -J smcpp
-#SBATCH -p bigmemm
+#SBATCH -p med2
 #SBATCH -t 8:00:00
-#SBATCH -a 50-65%2
+#SBATCH -a 1-47%2
 #SBATCH -n 1
-#SBATCH -c 14
+#SBATCH -c 28
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 #SBATCH --mem=110G
@@ -20,7 +20,7 @@ set -u
 ### Load modules ###
 ####################
 # Anaconda 3, automatically enables SMC++ (and Mafft)
-module load conda3
+module load bio3
 
 #############################
 ### Set up the parameters ###
@@ -35,8 +35,9 @@ vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
 smc_file="smcpp_prunus_biallelic.recode.vcf.gz"
 
 ####### SMC++ PARAMETERS #######
-mu="1.38e-8"	# population mutation rate
-cut="5000"	# cutoff length for homozygosity
+mu="7.77e-9"	# population mutation rate
+#cut="5000"	# cutoff length for homozygosity
+mask_file="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.softmasked.bed.bgz"	# bed file for masking positions
 
 ##############################
 ##### ACQUIRE SETUP DATA #####
@@ -102,10 +103,12 @@ date
 
 # Create reciprocal joint frequency spectra
 for i in {1..8}; do
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
+  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
 smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/"$pop1"_"$sub1"-"$pop2"_"$sub2"-"$i".smc.gz scaffold_"$i" \
 "$pop1":"$samples1" "$pop2":"$samples2"
-  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
+#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
+  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
 smc_analysis/split/"$pop1"-"$line1"_"$pop2"-"$line2"_"$mu"/"$pop2"_"$sub2"-"$pop1"_"$sub1"-"$i".smc.gz scaffold_"$i" \
 "$pop2":"$samples2" "$pop1":"$samples1"
 done

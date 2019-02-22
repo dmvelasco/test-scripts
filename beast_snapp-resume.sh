@@ -3,9 +3,9 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-snapp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-snapp.txt
 #SBATCH -J snapp
-#SBATCH -p med
+#SBATCH -p med2
 #SBATCH -n 1
-#SBATCH -c 16
+#SBATCH -c 10
 #SBATCH -t 40-00:00:00
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
@@ -54,4 +54,4 @@ dir2="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"		# VCF directory
 #"$dir1"/beast "$dir2"/amyg3.xml
 # below 2017-03-03
 #"$dir1"/beast "$dir2"/snapp_amygtest4_final.xml
-"$dir1"/beast "$dir2"/final14sept.xml
+"$dir1"/beast -resume "$dir2"/final14sept.xml
