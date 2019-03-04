@@ -3,9 +3,9 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%j-stdout-snapp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%j-stderr-snapp.txt
 #SBATCH -J snapp
-#SBATCH -p med2
+#SBATCH -p bigmemm
 #SBATCH -n 1
-#SBATCH -c 10
+#SBATCH -c 5
 #SBATCH -t 40-00:00:00
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL

@@ -3,11 +3,11 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-smcpp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-smcpp.txt
 #SBATCH -J smcpp
-#SBATCH -p med2
+#SBATCH -p bigmemh
 #SBATCH -t 8:00:00
 #SBATCH -a 1-40%2
 #SBATCH -n 1
-#SBATCH -c 28
+#SBATCH -c 14
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 #SBATCH --mem=110G
@@ -39,6 +39,8 @@ g=$(( x-1 ))
 vcf_filt="/home/dmvelasc/Projects/Prunus/Analysis/VCF_GATK"
 # smc file in $vcf_filt directory
 smc_file="smcpp_prunus_biallelic.recode.vcf.gz"
+# command used [estimate (est) or cross validation (cv)] to create population marginal estimates
+type="est"
 
 ####### SMC++ PARAMETERS #######
 mu="7.77e-9"	# population mutation rate
@@ -61,18 +63,18 @@ mapfile -s "$g" -n 1 -t id < "${pairs}"
 lines=(`echo "${id[0]}"`)
 
 # original order in smcpp_split.txt
-#line1="${lines[3]}"	#line number of first pop/subpop wanted
-#line2="${lines[7]}"	#line number of second pop/subpop wanted
+line1="${lines[3]}"	#line number of first pop/subpop wanted
+line2="${lines[7]}"	#line number of second pop/subpop wanted
 
 # reverse order in smcpp_split.txt, to test if order matters
-line1="${lines[7]}"	#line number of first pop/subpop wanted
-line2="${lines[3]}"	#line number of second pop/subpop wanted
+#line1="${lines[7]}"	#line number of first pop/subpop wanted
+#line2="${lines[3]}"	#line number of second pop/subpop wanted
 
 # original order
-#echo -e "Selecting populations: ${lines[0]}-${lines[1]} and ${lines[4]}-${lines[5]},\nrepresenting ${lines[2]} and ${lines[6]}, respectively."
+echo -e "Selecting populations: ${lines[0]}-${lines[1]} and ${lines[4]}-${lines[5]},\nrepresenting ${lines[2]} and ${lines[6]}, respectively."
 
 # reverse order
-echo -e "Selecting populations: ${lines[4]}-${lines[5]} and ${lines[0]}-${lines[1]},\nrepresenting ${lines[6]} and ${lines[2]}, respectively."
+#echo -e "Selecting populations: ${lines[4]}-${lines[5]} and ${lines[0]}-${lines[1]},\nrepresenting ${lines[6]} and ${lines[2]}, respectively."
 date
 
 ####### ARRAY TO EXTRACT POPULATION & SAMPLE INFORMATION FOR SMC++ #######
@@ -110,21 +112,24 @@ date
 ### Begin script ###
 ####################
 
-mkdir -p smc_analysis/split/"$mu"/"$pop1"-"$line1"_"$pop2"-"$line2"
+mkdir -p smc_analysis/"$mu"/"$type"_split/"$pop1"-"$line1"_"$pop2"-"$line2"
+mkdir -p smc_analysis/"$mu"/"$type"_split/"$pop2"-"$line2"_"$pop1"-"$line1"
+mkdir -p smc_analysis/"$mu"/"$type"_split/"$pop2"-"$line2"_"$pop1"-"$line1"
+
 
 ################## SPLIT #####################
-echo -e "SMC++: create reciprocal joint frequency spectrum datasets\n and run split analysis"
+echo -e "SMC++: create reciprocal joint frequency spectrum datasets and run split analysis"
 date
 
 # Create reciprocal joint frequency spectra
 for i in {1..8}; do
 #  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
   smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
-smc_analysis/split/"$mu"/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}_${sub1}-${pop2}_${sub2}-${i}".smc.gz scaffold_"$i" \
+smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}_${sub1}-${pop2}_${sub2}-${i}".smc.gz scaffold_"$i" \
 "${pop1}:${samples1}" "${pop2}:${samples2}"
 #  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
   smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
-smc_analysis/split/"$mu"/"${pop1}-${line1}_${pop2}-${line2}"/"${pop2}_${sub2}-${pop1}_${sub1}-${i}".smc.gz scaffold_"$i" \
+smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop2}_${sub2}-${pop1}_${sub1}-${i}".smc.gz scaffold_"$i" \
 "${pop2}:${samples2}" "${pop1}:${samples1}"
 done
 
@@ -132,10 +137,16 @@ echo -e "SMC++: refine the marginal estimates"
 date
 
 # Refine the marginal estimates
-smc++ split -o smc_analysis/split/"${mu}"/"${pop1}-${line1}_${pop2}-${line2}"/ \
- smc_analysis/"$mu"/"${pop1}_${sub1}"/model.final.json \
- smc_analysis/"$mu"/"${pop2}_${sub2}"/model.final.json \
- smc_analysis/split/"$mu"/"${pop1}-${line1}_${pop2}-${line2}"/*.smc.gz
+# order 1
+smc++ split -o smc_analysis/"${mu}"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/ \
+ smc_analysis/"$mu"/"$type"/"${pop1}_${sub1}"/model.final.json \
+ smc_analysis/"$mu"/"$type"/"${pop2}_${sub2}"/model.final.json \
+ smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/*.smc.gz
+# order 2
+smc++ split -o smc_analysis/"${mu}"/"$type"_split/"${pop2}-${line2}_${pop1}-${line1}"/ \
+ smc_analysis/"$mu"/"$type"/"${pop2}_${sub2}"/model.final.json \
+ smc_analysis/"$mu"/"$type"/"${pop1}_${sub1}"/model.final.json \
+ smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/*.smc.gz
 
 ##### posterior #####
 # export (and visualize) the posterior distributon of the TMRCA
@@ -172,6 +183,11 @@ echo -e "SMC++: plot the joint analyses"
 date
 
 # Plot by generations
+# Order 1
 smc++ plot -c \
-smc_analysis/split/"$mu"/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}-${line1}_${pop2}-${line2}_${mu}".pdf \
-smc_analysis/split/"$mu"/"${pop1}-${line1}_${pop2}-${line2}"/model.final.json
+smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}-${line1}_${pop2}-${line2}_${mu}".pdf \
+smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/model.final.json
+# Order 2
+smc++ plot -c \
+smc_analysis/"$mu"/"$type"_split/"${pop2}-${line2}_${pop1}-${line1}"/"${pop2}-${line2}_${pop1}-${line1}_${mu}".pdf \
+smc_analysis/"$mu"/"$type"_split/"${pop2}-${line2}_${pop1}-${line1}"/model.final.json

@@ -3,11 +3,11 @@
 #SBATCH -o /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stdout-smcpp.txt
 #SBATCH -e /home/dmvelasc/Projects/Prunus/slurm-log/%A_%a-stderr-smcpp.txt
 #SBATCH -J smcpp
-#SBATCH -p med2
+#SBATCH -p bigmemh
 #SBATCH -t 24:00:00
 #SBATCH -a 23-33%2
 #SBATCH -n 1
-#SBATCH -c 24
+#SBATCH -c 12
 #SBATCH --mail-user=dmvelasco@ucdavis.edu
 #SBATCH --mail-type=ALL
 #SBATCH --mem=80G
@@ -59,6 +59,8 @@ list="/home/dmvelasc/Projects/Prunus/Script/smcpp_data.txt"
 
 
 ## ANALYSIS PARAMETERS ##
+# estimate type [estimate (est) or cross validation (cv)]
+type="est"
 # population mutation rate, below are rates calculated in Xie et al. 2016
 mu="7.77e-9"
   # Xie et al. 2016
@@ -91,29 +93,33 @@ samples="${arr[2]}"
 #  B E G I N N I N G  O F  S C R I P T  C O M M A N D S  #
 ##########################################################
 
-echo -e "begin file preparation for SMC++\n run for loop by chromosome as per smcpp instructions\n select individuals and populations at this step"
-date
+#echo -e "begin file preparation for SMC++ run for loop by chromosome:\n select individuals and populations at this step"
+#date
 
 ##### SMC++ FINAL PREP #####
+# only really need to do this part once
 # convert files from VCF to SMC format
 # *.smc.gz files for each chromosome are the SMC++ output file
-for i in {1..8}; do
+#for i in {1..8}; do
+# first runs used a cutoff value, found in directory ${smc_in}_1
 #  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
-  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
-done
+# rerunning with v 1.15 used mask file
+#  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
+#done
 
-mkdir -p smc_analysis/"${mu}"/"${pop}_${sub}"
+mkdir -p smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"
 
 echo -e "begin SMC++ analysis"
 date
 
 ##### SMC++ CROSS VALIDATION ANALYSIS #####
 # model.final.json and iterations are outputs
-smc++ cv --cores 24 -o smc_analysis/"${mu}"/"${pop}_${sub}"/ --spline pchip "$mu" "$smc_in"/"${pop}_${sub}-"*.smc.gz
+smc++ estimate --cores 12 -o smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"/ --spline pchip "$mu" "$smc_in"/"${pop}_${sub}-"*.smc.gz
+#smc++ cv --cores 24 -o smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"/ --spline pchip "$mu" "$smc_in"/"${pop}_${sub}-"*.smc.gz
 
 ##### FINAL GRAPHICAL OUTPUT #####
 echo -e "plot SMC++ results"
 date
 
-smc++ plot -c smc_analysis/"$mu"/"${pop}_${sub}".pdf smc_analysis/"${mu}"/"${pop}_${sub}"/model.final.json
+smc++ plot -c smc_analysis/"$mu"/"$type"/"${pop}_${sub}".pdf smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"/model.final.json
 # -c		produces CSV-formatted table containing the data used to generate the plot
