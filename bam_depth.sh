@@ -17,22 +17,10 @@ set -u
 bin="/home/dmvelasc/bin"
 BAM_dir="/group/jrigrp3/Velasco/Prunus/BAM"
 
-#for file in "${BAM_dir}"/*HCrealign.bam; do
-#  name="${file##*/}"
-#  id="${name%_*.*}"
-#  echo "${id}"
-# all positions in genome
-#  "${bin}"/samtools depth -aa "${file}" | awk -v x="${id}" '{sum += $3} END {if (NR>0) print x " average coverage is " sum/NR}' - >> "${BAM_dir}"/HCrealign_BAM_depth.txt
-# all positions in genome, with base quality 20 and  mapping quality 30
-#  "${bin}"/samtools depth -aa -q 20 -Q 30 "${file}" | awk -v x="${id}" '{sum += $3} END {if (NR>0) print x " average coverage is " sum/NR}' - >> "${BAM_dir}"/HCrealign_BAM_depth_BQ20MQ30.txt
-# all positions in genome with base quality 20 and mapping quality 30 and no depth limitations (may be the issue with persica values)
-#  "${bin}"/samtools depth -aa -d 0 -q 20 -Q 30 "${file}" | awk -v x="${id}" '{sum += $3} END {if (NR>0) print x " average coverage is " sum/NR}' - >> "${BAM_dir}"/HCrealign_BAM_depth_BQ20MQ30_dmax.txt
-# NOT DONE all positions in genome (scaffolds 1-8) with base quality 20 and mapping quality 30
-#  "${bin}"/samtools depth -aa -q 20 -Q 30 "${file}" | awk -v x="${id}" '{sum += $3} END {if (NR>0) print x " average coverage is " sum/NR}' - >> "${BAM_dir}"/HCrealign_BAM_depth_BQ20MQ30.txt
-#done
-
-# persica sample values still not the size I would expect, may be a limitation of awk summation
-# bash for loop may be best option
+# awk version may have been limited, although wasn't a problem for 2016 paper depth calculations
+# but persica sample values were not the size I expected using that menthod
+# bash for loop with an internal while loop took forever, only getting through 3 in 24 hours
+# found below perl option; appears it may be best option
 for file in "${BAM_dir}"/*HCrealign.bam; do
   name="${file##*/}"
   id="${name%_*.*}"
@@ -40,15 +28,9 @@ for file in "${BAM_dir}"/*HCrealign.bam; do
   awk '{print $3}' "${BAM_dir}"/depth_temp.txt > "${BAM_dir}"/temp.txt
   pos=$(cat temp.txt | wc -l)
   list="temp.txt"
-  sum=0
-  while IFS='' read -r num || [[ -n "$num" ]]; do
-    sum=$(( sum + num ))
-  done < "$list"
-#  for num in "$list"; do
-#    ((sum+=num))
-#  done
+  sum=`perl -nle '$sum += $_} END { print $sum' "$list"`
   avg=$(echo "scale=6 ; ${sum} / ${pos}" | bc)
-  echo "${id} average coverage is ${avg}" >> HCrealign_BAM_BQ20MQ30_dmax_bashloop.txt
+  echo "${id} average coverage is ${avg}" >> HCrealign_BAM_depth_BQ20MQ30_dmax_perl.txt
 done
 
 #rm "${BAM_dir}"/depth_temp.txt "${BAM_dir}"/temp.txt

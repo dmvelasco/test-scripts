@@ -44,9 +44,9 @@ type="est"
 
 ####### SMC++ PARAMETERS #######
 mu="7.77e-9"	# population mutation rate
-#cut="5000"	# cutoff length for homozygosity
+cut="5000"	# cutoff length for homozygosity
 # bed file for masking positions
-mask_file="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.softmasked.bed.bgz"
+#mask_file="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.softmasked.bed.bgz"
 
 ##############################
 ##### ACQUIRE SETUP DATA #####
@@ -112,9 +112,9 @@ date
 ### Begin script ###
 ####################
 
-mkdir -p smc_analysis/"$mu"/"$type"_split/"$pop1"-"$line1"_"$pop2"-"$line2"
-mkdir -p smc_analysis/"$mu"/"$type"_split/"$pop2"-"$line2"_"$pop1"-"$line1"
-mkdir -p smc_analysis/"$mu"/"$type"_split/"$pop2"-"$line2"_"$pop1"-"$line1"
+mkdir -p smc_analysis/"$mu"/"$type"_cut_split/"$pop1"-"$line1"_"$pop2"-"$line2"
+mkdir -p smc_analysis/"$mu"/"$type"_cut_split/"$pop2"-"$line2"_"$pop1"-"$line1"
+mkdir -p smc_analysis/"$mu"/"$type"_cut_split/"$pop2"-"$line2"_"$pop1"-"$line1"
 
 
 ################## SPLIT #####################
@@ -123,13 +123,13 @@ date
 
 # Create reciprocal joint frequency spectra
 for i in {1..8}; do
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
-  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
-smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}_${sub1}-${pop2}_${sub2}-${i}".smc.gz scaffold_"$i" \
+#  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
+  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
+smc_analysis/"$mu"/"$type"_cut_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}_${sub1}-${pop2}_${sub2}-${i}".smc.gz scaffold_"$i" \
 "${pop1}:${samples1}" "${pop2}:${samples2}"
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
-  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
-smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop2}_${sub2}-${pop1}_${sub1}-${i}".smc.gz scaffold_"$i" \
+#  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" \
+  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" \
+smc_analysis/"$mu"/"$type"_cut_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop2}_${sub2}-${pop1}_${sub1}-${i}".smc.gz scaffold_"$i" \
 "${pop2}:${samples2}" "${pop1}:${samples1}"
 done
 
@@ -138,15 +138,15 @@ date
 
 # Refine the marginal estimates
 # order 1
-smc++ split -o smc_analysis/"${mu}"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/ \
- smc_analysis/"$mu"/"$type"/"${pop1}_${sub1}"/model.final.json \
- smc_analysis/"$mu"/"$type"/"${pop2}_${sub2}"/model.final.json \
- smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/*.smc.gz
+smc++ split -o smc_analysis/"${mu}"/"$type"_cut_split/"${pop1}-${line1}_${pop2}-${line2}"/ \
+ smc_analysis/"$mu"/"$type"/cut/"${pop1}_${sub1}"/model.final.json \
+ smc_analysis/"$mu"/"$type"/cut/"${pop2}_${sub2}"/model.final.json \
+ smc_analysis/"$mu"/"$type"_cut_split/"${pop1}-${line1}_${pop2}-${line2}"/*.smc.gz
 # order 2
-smc++ split -o smc_analysis/"${mu}"/"$type"_split/"${pop2}-${line2}_${pop1}-${line1}"/ \
- smc_analysis/"$mu"/"$type"/"${pop2}_${sub2}"/model.final.json \
- smc_analysis/"$mu"/"$type"/"${pop1}_${sub1}"/model.final.json \
- smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/*.smc.gz
+smc++ split -o smc_analysis/"${mu}"/"$type"_cut_split/"${pop2}-${line2}_${pop1}-${line1}"/ \
+ smc_analysis/"$mu"/"$type"/cut/"${pop2}_${sub2}"/model.final.json \
+ smc_analysis/"$mu"/"$type"/cut/"${pop1}_${sub1}"/model.final.json \
+ smc_analysis/"$mu"/"$type"_cut_split/"${pop1}-${line1}_${pop2}-${line2}"/*.smc.gz
 
 ##### posterior #####
 # export (and visualize) the posterior distributon of the TMRCA
@@ -185,9 +185,9 @@ date
 # Plot by generations
 # Order 1
 smc++ plot -c \
-smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}-${line1}_${pop2}-${line2}_${mu}".pdf \
-smc_analysis/"$mu"/"$type"_split/"${pop1}-${line1}_${pop2}-${line2}"/model.final.json
+smc_analysis/"$mu"/"$type"_cut_split/"${pop1}-${line1}_${pop2}-${line2}"/"${pop1}-${line1}_${pop2}-${line2}_${mu}".pdf \
+smc_analysis/"$mu"/"$type"_cut_split/"${pop1}-${line1}_${pop2}-${line2}"/model.final.json
 # Order 2
 smc++ plot -c \
-smc_analysis/"$mu"/"$type"_split/"${pop2}-${line2}_${pop1}-${line1}"/"${pop2}-${line2}_${pop1}-${line1}_${mu}".pdf \
-smc_analysis/"$mu"/"$type"_split/"${pop2}-${line2}_${pop1}-${line1}"/model.final.json
+smc_analysis/"$mu"/"$type"_cut_split/"${pop2}-${line2}_${pop1}-${line1}"/"${pop2}-${line2}_${pop1}-${line1}_${mu}".pdf \
+smc_analysis/"$mu"/"$type"_cut_split/"${pop2}-${line2}_${pop1}-${line1}"/model.final.json

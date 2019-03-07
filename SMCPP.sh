@@ -70,9 +70,9 @@ mu="7.77e-9"
 
 # use one of the below for quality control for better estimation
 # cutoff length for homozygosity, ignores runs greater than this length
-#cut="5000"
+cut="5000"
 # BED format mask file
-mask_file="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.softmasked.bed.bgz"
+#mask_file="/home/dmvelasc/Data/references/persica-SCF/Prunus_persica_v1.0_scaffolds.softmasked.bed.bgz"
 
 ## POPULATION, SUBPOPULATION, AND SAMPLE INFORMATION #####
 # mapfile to extract sample ID and read name information, each line is array item
@@ -100,26 +100,29 @@ samples="${arr[2]}"
 # only really need to do this part once
 # convert files from VCF to SMC format
 # *.smc.gz files for each chromosome are the SMC++ output file
-#for i in {1..8}; do
+
+mkdir -p "$smc_in"/cut/
+
+for i in {1..8}; do
 # first runs used a cutoff value, found in directory ${smc_in}_1
-#  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
+  smc++ vcf2smc --missing-cutoff "$cut" "$vcf_filt"/"$smc_file" "$smc_in"/cut/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
 # rerunning with v 1.15 used mask file
 #  smc++ vcf2smc --mask "$mask_file" "$vcf_filt"/"$smc_file" "$smc_in"/"${pop}_${sub}-${i}".smc.gz scaffold_"$i" "${pop}:${samples}"
-#done
+done
 
-mkdir -p smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"
+mkdir -p smc_analysis/"${mu}"/"$type"/cut/"${pop}_${sub}"
 
 echo -e "begin SMC++ analysis"
 date
 
 ##### SMC++ CROSS VALIDATION ANALYSIS #####
 # model.final.json and iterations are outputs
-smc++ estimate --cores 12 -o smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"/ --spline pchip "$mu" "$smc_in"/"${pop}_${sub}-"*.smc.gz
+smc++ estimate --cores 12 -o smc_analysis/"${mu}"/"$type"/cut/"${pop}_${sub}"/ --spline pchip "$mu" "$smc_in"/cut/"${pop}_${sub}-"*.smc.gz
 #smc++ cv --cores 24 -o smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"/ --spline pchip "$mu" "$smc_in"/"${pop}_${sub}-"*.smc.gz
 
 ##### FINAL GRAPHICAL OUTPUT #####
 echo -e "plot SMC++ results"
 date
 
-smc++ plot -c smc_analysis/"$mu"/"$type"/"${pop}_${sub}".pdf smc_analysis/"${mu}"/"$type"/"${pop}_${sub}"/model.final.json
+smc++ plot -c smc_analysis/"$mu"/"$type"/"${pop}_${sub}".pdf smc_analysis/"${mu}"/"$type"/cut/"${pop}_${sub}"/model.final.json
 # -c		produces CSV-formatted table containing the data used to generate the plot
